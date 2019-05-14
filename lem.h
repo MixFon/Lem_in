@@ -20,6 +20,7 @@ typedef struct		s_node
 	char			name[NSIZE];
 	int				coor_x;
 	int				coor_y;
+	short int		bl;
 	struct s_node	*next;
 	t_nlst			*edg;
 }					t_node;
@@ -31,4 +32,6 @@ typedef struct		s_queue
 {
 	t_nlst			*first;
 	t_nlst			*end;
+	char			name_start[NSIZE];
+	char			name_end[NSIZE];
 }					t_queue;

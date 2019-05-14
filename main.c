@@ -12,13 +12,17 @@ void	sys_err(char *err)
 
 /*
 ** Check name node.
+** Check symbol octothorpe.
+** For search comments, start or end.
 */
 
-int		check_name_node(char *line)
+int		check_name_octothorpe(char *line)
 {
 	int space;
 
 	space = 0;
+	if (!ft_strncmp("##", line, 2))
+		return (1);
 	while (*line != '\0')
 	{
 		if (*line == ' ')
@@ -43,19 +47,6 @@ int		check_link_node(char *line)
 		line++;
 	}
 	return (0);
-}
-
-/*
-** Check symbol octothorpe.
-** For search comments, start or end.
-*/
-
-int		check_octothorpe(char *line)
-{
-	if (*line == '#')
-		return (1);
-	else
-		return (0);
 }
 
 /*
@@ -92,6 +83,7 @@ t_node	*new_node(char *line)
 		sys_err("Error malloc");
 	new->coor_x = 0;
 	new->coor_y = 0;
+	new->bl = 0;
 	new->next = NULL;
 	new->edg = NULL;
 	infill_node(new, line);
@@ -231,9 +223,10 @@ int		isempty_queue(t_queue *que)
 ** Remove first elemet of list. And return first elem.
 */
 
-t_nlst	*remove_first(t_queue *que)
+char	*remove_first(t_queue *que)
 {
 	t_nlst	*iter;
+	char	*name;
 
 	if (isempty_queue(que))
 	{
@@ -243,7 +236,9 @@ t_nlst	*remove_first(t_queue *que)
 	iter = que->first;
 	que->first = que->first->next;
 	iter->next = NULL;
-	return (iter);
+	name = ft_strdup(iter->name_edg);
+	free(iter);
+	return (name);
 }
 
 /*
@@ -254,36 +249,113 @@ void	create_edges(t_node *node, char *line)
 {
 	size_t	len;
 	char	*fir_name;
-	t_node	*fir;
+	t_node	*temp;
 
 	len = ft_strcl(line, '-');
 	fir_name = ft_strnew(len + 1);
 	fir_name = ft_strncpy(fir_name, line, len);
-	fir = search_node(node, fir_name);
-	add_new_edges(&fir->edg, (line + len + 1));
+	temp = search_node(node, fir_name);
+	add_new_edges(&temp->edg, (line + len + 1));
+	temp = search_node(node, line + len + 1);
+	add_new_edges(&temp->edg, fir_name);
 	//ft_printf("fir_name = %s\n", fir->name);
 	//ft_printf("sec_name = %s\n", sec->name);
 	ft_strdel(&fir_name);
 }
 
+
 /*
-** Add new node in to list.
+** Copy name. For queue start and queue end.
 */
 
-t_node	*add_node(t_node *node, char *line)
+void	copy_name(char *name, char *line)
+{
+	int i;
+
+	i = 0;
+	while (line[i] != '\0' && line[i] != ' ')
+	{
+		name[i] = line[i];
+		i++;
+	}
+	name[i] = '\0';
+}
+
+/*
+** Add new node in to list.
+** Ceack liks. Line???
+*/
+
+t_node	*add_node(t_node *node, t_queue *que, char **line)
 {
 	t_node	*n_node;
 	t_node	*first;
 
 	first = node;
+	if (!ft_strncmp("##start", *line, 7))
+	{
+		ft_strdel(line);
+		get_next_line(0, line);
+		ft_putendl(*line);
+		copy_name(que->name_start, *line);
+		ft_printf("Start name = %s\n", que->name_start);
+	}
+	else	if (!ft_strncmp("##end", *line, 5))
+	{
+		ft_strdel(line);
+		get_next_line(0, line);
+		ft_putendl(*line);
+		copy_name(que->name_end, *line);
+		ft_printf("End name = %s\n", que->name_end);
+	}
 	if (!node)
 	{
-		node = new_node(line);
+		node = new_node(*line);
 		return (node);
 	}
-	n_node = new_node(line);
+	n_node = new_node(*line);
 	n_node->next = node;
 	return (n_node);
+}
+
+
+/*
+** Breadth-first search.
+*/
+
+void	breadth_irst_search(t_node *node, t_queue *que)
+{
+	t_node	*cur_node;
+	t_nlst	*edg_lst;
+	char	*name;
+
+	insert(que, que->name_start);	
+	while (!isempty_queue(que))
+	{
+		name = remove_first(que);
+		ft_printf("Remove %s\n", name);
+		cur_node = search_node(node, name);
+		edg_lst = cur_node->edg;
+		/*
+		if (cur_node->bl)
+		{
+			free(name);
+			continue ;
+		}
+		*/
+		cur_node->bl = 1;
+		while (edg_lst != NULL)
+		{
+			cur_node = search_node(node, edg_lst->name_edg);
+			if (cur_node->bl == 0)
+			{
+				insert(que, edg_lst->name_edg);
+				ft_printf("Insert %s\n", edg_lst->name_edg);
+			}
+			edg_lst = edg_lst->next;
+		}
+		free(name);
+	}
 }
 
 /*
@@ -294,27 +366,30 @@ void	read_map(void)
 {
 	char	*line;
 	t_node	*node;
+	t_queue	*que;
 	//int		fd;
 
 	line = NULL;
 	node = NULL;
 	//fd = open("map1", O_RDONLY);
+	que = init_queue();
 	while(get_next_line(0, &line))
 	{
 		ft_printf("%s\n", line);
-		if (check_name_node(line))
-			node = add_node(node, line);
+		if (check_name_octothorpe(line))
+			node = add_node(node, que, &line);
 		else	if (check_link_node(line))
 			create_edges(node, line);
 		ft_strdel(&line);
 	}
-	print_list(node);
+	//print_list(node);
+	breadth_irst_search(node, que);
 }
 
 int		main(void)
 {
 	t_queue *que;
-	t_nlst	*lst;
+	char	*lst;
 
 	que = NULL;
 	que = init_queue();
@@ -331,6 +406,14 @@ int		main(void)
 	free(lst);
 	lst = remove_first(que);
 	free(lst);
+	lst = remove_first(que);
+	free(lst);
+	print_edges(que->first);
+	ft_printf("fitst = %s, end = %s\n", que->first, que->end);
+	insert(que, "6");
+	insert(que, "7");
+	print_edges(que->first);
+	ft_printf("fitst = %s, end = %s\n", que->first, que->end);
 	lst = remove_first(que);
 	free(lst);
 	print_edges(que->first);
