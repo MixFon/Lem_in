@@ -84,6 +84,7 @@ t_node	*new_node(char *line)
 	new->coor_x = 0;
 	new->coor_y = 0;
 	new->bl = 0;
+	new->level = -1;
 	new->next = NULL;
 	new->edg = NULL;
 	infill_node(new, line);
@@ -328,25 +329,27 @@ void	breadth_irst_search(t_node *node, t_queue *que)
 	t_node	*cur_node;
 	t_nlst	*edg_lst;
 	char	*name;
+	int		i;
 
-	insert(que, que->name_start);	
+	insert(que, que->name_start);
+	i = 0;
 	while (!isempty_queue(que))
 	{
 		name = remove_first(que);
-		ft_printf("Remove %s\n", name);
 		cur_node = search_node(node, name);
+		i = ++cur_node->level;
+		ft_printf("Remove %s Level %d\n", name, cur_node->level);
 		edg_lst = cur_node->edg;
-		/*
-		if (cur_node->bl)
+		if (!ft_strcmp(name, que->name_end))
 		{
-			free(name);
-			continue ;
+			ft_printf("Finish %s\n", name);
+			return ;
 		}
-		*/
 		cur_node->bl = 1;
 		while (edg_lst != NULL)
 		{
 			cur_node = search_node(node, edg_lst->name_edg);
+			cur_node->level = i;
 			if (cur_node->bl == 0)
 			{
 				insert(que, edg_lst->name_edg);

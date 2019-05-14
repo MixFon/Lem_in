@@ -21,6 +21,7 @@ typedef struct		s_node
 	int				coor_x;
 	int				coor_y;
 	short int		bl;
+	int				level;
 	struct s_node	*next;
 	t_nlst			*edg;
 }					t_node;
