@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/05/16 10:18:25 by widraugr          #+#    #+#             */
+/*   Updated: 2019/05/16 15:29:19 by widraugr         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "lem.h"
 
 /*
@@ -83,7 +95,8 @@ t_node	*new_node(char *line)
 		sys_err("Error malloc");
 	new->coor_x = 0;
 	new->coor_y = 0;
-	new->bl = 0;
+	new->mark_bfs = 0;
+	new->dfs_mark = 0;
 	new->level = -1;
 	new->next = NULL;
 	new->edg = NULL;
@@ -92,10 +105,10 @@ t_node	*new_node(char *line)
 }
 
 /*
-** Serch node by name.
+** Serch for a node by name.
 */
 
-t_node *search_node(t_node *node, char *name)
+t_node	*search_node(t_node *node, char *name)
 {
 	while (node)
 	{
@@ -177,7 +190,7 @@ void	add_new_edges(t_nlst **nlst, char *name)
 ** Init queue.
 */
 
-t_queue	*init_queue()
+t_queue	*init_queue(void)
 {
 	t_queue *queue;
 
@@ -221,7 +234,7 @@ int		isempty_queue(t_queue *que)
 }
 
 /*
-** Remove first elemet of list. And return first elem.
+** Remove first elemet of list. And return name of first element.
 */
 
 char	*remove_first(t_queue *que)
@@ -324,7 +337,7 @@ t_node	*add_node(t_node *node, t_queue *que, char **line)
 ** Breadth-first search.
 */
 
-void	breadth_irst_search(t_node *node, t_queue *que)
+void	breadth_first_search(t_node *node, t_queue *que)
 {
 	t_node	*cur_node;
 	t_nlst	*edg_lst;
@@ -345,12 +358,12 @@ void	breadth_irst_search(t_node *node, t_queue *que)
 			ft_printf("Finish %s\n", name);
 			return ;
 		}
-		cur_node->bl = 1;
+		cur_node->mark_bfs = 1;
 		while (edg_lst != NULL)
 		{
 			cur_node = search_node(node, edg_lst->name_edg);
 			cur_node->level = i;
-			if (cur_node->bl == 0)
+			if (cur_node->mark_bfs == 0)
 			{
 				insert(que, edg_lst->name_edg);
 				ft_printf("Insert %s\n", edg_lst->name_edg);
@@ -362,6 +375,59 @@ void	breadth_irst_search(t_node *node, t_queue *que)
 }
 
 /*
+** -------------------------------   Stack.   ---------------------------------
+*/
+
+void	push(t_stack *stack, char *name)
+{
+	t_nlst *new_lst;
+	t_nlst *temp;
+
+	temp = stack->first;
+	if (stack->first == NULL)
+		stack->first = creat_new_lst(name);
+	else
+	{
+		new_lst = creat_new_lst(name);
+		new_lst->next = temp;
+		stack->first = new_lst;	
+	}
+}
+
+int		isempty_stack(t_stack *stack)
+{
+	if (stack->first == NULL)
+		return (1);
+	else
+		return (0);
+}
+
+/*
+** Init stack.
+*/
+
+t_stack	*init_stack(void)
+{
+	t_stack *new;
+
+	if (!(new = (t_stack*)malloc(sizeof(t_stack))))
+		sys_err("Error malloc\n");
+	new->first = NULL;
+	new->count = 0;
+	return (new);
+}
+
+/*
+** Depth-first search.
+*/
+
+void	depth_first_search(t_node *node, t_stack *stack)
+{
+	push(stack, stack->name_start);
+
+}
+
+/*
 ** Read map.
 */
 
@@ -370,12 +436,14 @@ void	read_map(void)
 	char	*line;
 	t_node	*node;
 	t_queue	*que;
+	t_stack *stack;
 	//int		fd;
 
 	line = NULL;
 	node = NULL;
 	//fd = open("map1", O_RDONLY);
 	que = init_queue();
+	stack = init_stack();
 	while(get_next_line(0, &line))
 	{
 		ft_printf("%s\n", line);
@@ -385,8 +453,9 @@ void	read_map(void)
 			create_edges(node, line);
 		ft_strdel(&line);
 	}
+	ft_strcpy(stack->name_start, que->name_start);
 	print_list(node);
-	breadth_irst_search(node, que);
+	breadth_first_search(node, que);
 }
 
 int		main(void)
