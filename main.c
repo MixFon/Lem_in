@@ -425,6 +425,17 @@ void	depth_first_search(t_node *node, t_stack *stack)
 {
 	push(stack, stack->name_start);
 
+
+}
+
+/*
+** Copy names start and end to queue by stack.
+*/
+
+void	copy_name_que_stack(t_queue *que, t_stack *stack)
+{
+	ft_strcpy(stack->name_start, que->name_start);
+	ft_strcpy(stack->name_end, que->name_end);
 }
 
 /*
@@ -453,7 +464,7 @@ void	read_map(void)
 			create_edges(node, line);
 		ft_strdel(&line);
 	}
-	ft_strcpy(stack->name_start, que->name_start);
+	copy_name_que_stack(que, stack);
 	print_list(node);
 	breadth_first_search(node, que);
 }

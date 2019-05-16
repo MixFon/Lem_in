@@ -62,5 +62,6 @@ typedef struct		s_stack
 {
 	t_nlst			*first;
 	char			name_start[NSIZE];
+	char			name_end[NSIZE];
 	int				count;
 }					t_stack;
