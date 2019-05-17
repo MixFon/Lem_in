@@ -133,6 +133,21 @@ void	print_edges(t_nlst *edg)
 }
 
 /*
+** Print stack.
+*/
+
+void	print_stack(t_nlst *lst)
+{
+	//ft_printf("Stack:\n");
+	while (lst)
+	{
+		ft_printf("%s ", lst->name_edg);
+		lst = lst->next;
+	}
+	ft_putstr("\n");
+}
+
+/*
 ** Print list. For test.
 */
 
@@ -378,12 +393,27 @@ void	breadth_first_search(t_node *node, t_queue *que)
 ** -------------------------------   Stack.   ---------------------------------
 */
 
+void	pop(t_stack *stack, t_node *node)
+{
+	t_nlst	*temp;
+	t_node	*cur_node;
+
+	temp = stack->first;
+	stack->first = stack->first->next;
+	temp->next = NULL;
+	cur_node = search_node(node, temp->name_edg);
+	cur_node->dfs_mark = 2;
+	//name = ft_strdup(temp->name_edg);
+	free(temp);
+}
+
 void	push(t_stack *stack, char *name)
 {
 	t_nlst *new_lst;
 	t_nlst *temp;
 
 	temp = stack->first;
+	stack->count++;
 	if (stack->first == NULL)
 		stack->first = creat_new_lst(name);
 	else
@@ -423,9 +453,42 @@ t_stack	*init_stack(void)
 
 void	depth_first_search(t_node *node, t_stack *stack)
 {
+	t_node	*cur_node;
+	t_nlst	*lst;
+	char	*name;
+
 	push(stack, stack->name_start);
-
-
+	ft_printf("Name start stack %s\n", stack->name_start);
+	while (!isempty_stack(stack))
+	{
+		name = stack->first->name_edg;
+		//ft_printf("Name first stack %s\n", name);
+		cur_node = search_node(node, name);
+		cur_node->dfs_mark = 1;
+		lst = cur_node->edg;
+		while (lst)
+		{
+			name = lst->name_edg;
+			cur_node = search_node(node, name);
+			if (!ft_strcmp(name, stack->name_end))
+			{
+				ft_printf("Find! %s\n", name);
+				cur_node->dfs_mark = 2;
+			}
+			if (cur_node->dfs_mark == 0)
+			{
+				push(stack, name);
+				ft_printf("Push to stack %s\n", name);
+				break ;
+			}
+			lst = lst->next;
+		}
+		if (lst == NULL)
+			pop(stack, node);
+		print_stack(stack->first);
+		//break ;
+		//free(name);
+	}
 }
 
 /*
@@ -467,6 +530,7 @@ void	read_map(void)
 	copy_name_que_stack(que, stack);
 	print_list(node);
 	breadth_first_search(node, que);
+	depth_first_search(node, stack);
 }
 
 int		main(void)
