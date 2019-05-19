@@ -508,8 +508,8 @@ void	depth_first_search(t_node *node, t_stack *stack)
 				ft_printf("Path\n");
 				insert(path, name);
 				print_edges(path->first);
+				cur_node->dfs_mark = 1;
 				remove_last(path);
-				cur_node->dfs_mark = 2;
 			}
 			else	if (cur_node->dfs_mark == 0)
 			{
@@ -567,7 +567,7 @@ void	read_map(void)
 	}
 	copy_name_que_stack(que, stack);
 	//print_list(node);
-	//breadth_first_search(node, que);
+	breadth_first_search(node, que);
 	depth_first_search(node, stack);
 }
 
