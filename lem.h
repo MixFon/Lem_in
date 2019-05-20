@@ -51,8 +51,9 @@ typedef struct		s_queue
 {
 	t_nlst			*first;
 	t_nlst			*end;
-	char			name_start[NSIZE];
-	char			name_end[NSIZE];
+	//char			name_start[NSIZE];
+	//char			name_end[NSIZE];
+	//int				count;
 }					t_queue;
 /*
 ** Structure stack.
@@ -61,7 +62,17 @@ typedef struct		s_queue
 typedef struct		s_stack
 {
 	t_nlst			*first;
+	//char			name_start[NSIZE];
+	//char			name_end[NSIZE];
+	//int				count;
+}					t_stack;
+
+typedef struct		s_ant
+{
+	t_queue			*que;
+	t_stack			*stack;
+	t_nlst			*sol;;
 	char			name_start[NSIZE];
 	char			name_end[NSIZE];
 	int				count;
-}					t_stack;
+}					t_ant;

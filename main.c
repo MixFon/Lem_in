@@ -342,7 +342,7 @@ void	copy_name(char *name, char *line)
 ** Ceack liks. Line???
 */
 
-t_node	*add_node(t_node *node, t_queue *que, char **line)
+t_node	*add_node(t_node *node, t_ant *ant, char **line)
 {
 	t_node	*n_node;
 	t_node	*first;
@@ -353,16 +353,16 @@ t_node	*add_node(t_node *node, t_queue *que, char **line)
 		ft_strdel(line);
 		get_next_line(0, line);
 		ft_putendl(*line);
-		copy_name(que->name_start, *line);
-		ft_printf("Start name = %s\n", que->name_start);
+		copy_name(ant->name_start, *line);
+		ft_printf("Start name = %s\n", ant->name_start);
 	}
 	else	if (!ft_strncmp("##end", *line, 5))
 	{
 		ft_strdel(line);
 		get_next_line(0, line);
 		ft_putendl(*line);
-		copy_name(que->name_end, *line);
-		ft_printf("End name = %s\n", que->name_end);
+		copy_name(ant->name_end, *line);
+		ft_printf("End name = %s\n", ant->name_end);
 	}
 	if (!node)
 	{
@@ -379,23 +379,24 @@ t_node	*add_node(t_node *node, t_queue *que, char **line)
 ** Breadth-first search.
 */
 
-void	breadth_first_search(t_node *node, t_queue *que)
+void	breadth_first_search(t_node *node, t_ant *ant)
 {
 	t_node	*cur_node;
 	t_nlst	*edg_lst;
 	char	*name;
 	int		i;
 
-	insert(que, que->name_start);
+	insert(ant->que, ant->name_start);
 	i = 0;
-	while (!isempty_queue(que))
+	while (!isempty_queue(ant->que))
 	{
-		name = remove_first(que);
+		name = remove_first(ant->que);
 		cur_node = search_node(node, name);
 		ft_printf("Remove %s Level %d\n", name, cur_node->level);
-		if (!ft_strcmp(name, que->name_end))
+		if (!ft_strcmp(name, ant->name_end))
 		{
 			ft_printf("Finish %s\n", name);
+			ant->count = cur_node->level;
 			return ;
 		}
 		edg_lst = cur_node->edg;
@@ -407,7 +408,7 @@ void	breadth_first_search(t_node *node, t_queue *que)
 			cur_node->level = i;
 			if (cur_node->mark_bfs == 0)
 			{
-				insert(que, edg_lst->name_edg);
+				insert(ant->que, edg_lst->name_edg);
 				cur_node->mark_bfs = 1;
 				cur_node->level++;
 				ft_printf("Insert %s\n", edg_lst->name_edg);
@@ -442,7 +443,7 @@ void	push(t_stack *stack, char *name)
 	t_nlst *temp;
 
 	temp = stack->first;
-	stack->count++;
+	//stack->count++;
 	if (stack->first == NULL)
 		stack->first = creat_new_lst(name);
 	else
@@ -472,28 +473,54 @@ t_stack	*init_stack(void)
 	if (!(new = (t_stack*)malloc(sizeof(t_stack))))
 		sys_err("Error malloc\n");
 	new->first = NULL;
-	new->count = 0;
+	//new->count = 0;
 	return (new);
+}
+
+/*
+** Copy solution list name.
+*/
+
+void	copy_sol_list(t_ant *ant, t_nlst *first)
+{
+	t_nlst *temp;
+	t_nlst *iter;
+
+	iter = creat_new_lst(first->name_edg);
+	ant->sol = iter;
+	first = first->next;
+	while (first)
+	{
+		temp = creat_new_lst(first->name_edg);
+		iter->next = temp;
+		iter = temp;
+		//temp->next = iter;
+		//iter = temp;
+		first = first->next;
+	}
+	//ant->sol = temp;
+	ft_printf("Copy list!!!!\n");
+	print_edges(ant->sol);
 }
 
 /*
 ** Depth-first search.
 */
 
-void	depth_first_search(t_node *node, t_stack *stack)
+void	depth_first_search(t_node *node, t_ant *ant)
 {
 	t_node	*cur_node;
 	t_queue	*path;
 	t_nlst	*lst;
 	char	*name;
 
-	push(stack, stack->name_start);
+	push(ant->stack, ant->name_start);
 	path = init_queue();
-	insert(path, stack->name_start);
-	ft_printf("Name start stack %s\n", stack->name_start);
-	while (!isempty_stack(stack))
+	insert(path, ant->name_start);
+	ft_printf("Name start stack %s\n", ant->name_start);
+	while (!isempty_stack(ant->stack))
 	{
-		name = stack->first->name_edg;
+		name = ant->stack->first->name_edg;
 		//ft_printf("Name first stack %s\n", name);
 		cur_node = search_node(node, name);
 		cur_node->dfs_mark = 1;
@@ -502,18 +529,19 @@ void	depth_first_search(t_node *node, t_stack *stack)
 		{
 			name = lst->name_edg;
 			cur_node = search_node(node, name);
-			if (!ft_strcmp(name, stack->name_end))
+			if (!ft_strcmp(name, ant->name_end))
 			{
 				ft_printf("Find! %s\n", name);
 				ft_printf("Path\n");
 				insert(path, name);
-				print_edges(path->first);
+				copy_sol_list(ant, path->first);
+				//print_edges(path->first);
 				cur_node->dfs_mark = 1;
 				remove_last(path);
 			}
 			else	if (cur_node->dfs_mark == 0)
 			{
-				push(stack, name);
+				push(ant->stack, name);
 				insert(path, name);
 				ft_printf("Push to stack %s\n", name);
 				break ;
@@ -523,20 +551,26 @@ void	depth_first_search(t_node *node, t_stack *stack)
 		if (lst == NULL)
 		{
 			remove_last(path);
-			pop(stack, node);
+			pop(ant->stack, node);
 		}
-		print_stack(stack->first);
+		print_stack(ant->stack->first);
 	}
 }
 
 /*
-** Copy names start and end to queue by stack.
+** Init struct ant.
 */
 
-void	copy_name_que_stack(t_queue *que, t_stack *stack)
+t_ant	*init_ant(void)
 {
-	ft_strcpy(stack->name_start, que->name_start);
-	ft_strcpy(stack->name_end, que->name_end);
+	t_ant	*new;
+
+	if(!(new = (t_ant*)malloc(sizeof(t_ant))))
+		sys_err("Error malloc\n");
+	new->que = init_queue();
+	new->stack = init_stack();
+	new->count = 0;
+	return (new);
 }
 
 /*
@@ -547,28 +581,25 @@ void	read_map(void)
 {
 	char	*line;
 	t_node	*node;
-	t_queue	*que;
-	t_stack *stack;
+	t_ant	*ant;
 	//int		fd;
 
 	line = NULL;
 	node = NULL;
 	//fd = open("map1", O_RDONLY);
-	que = init_queue();
-	stack = init_stack();
+	ant = init_ant();
 	while(get_next_line(0, &line))
 	{
 		ft_printf("%s\n", line);
 		if (check_name_octothorpe(line))
-			node = add_node(node, que, &line);
+			node = add_node(node, ant, &line);
 		else	if (check_link_node(line))
 			create_edges(node, line);
 		ft_strdel(&line);
 	}
-	copy_name_que_stack(que, stack);
 	//print_list(node);
-	breadth_first_search(node, que);
-	depth_first_search(node, stack);
+	breadth_first_search(node, ant);
+	depth_first_search(node, ant);
 }
 
 int		main(void)
