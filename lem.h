@@ -46,14 +46,13 @@ typedef struct		s_node
 /*
 ** Structure queue.
 ** First is left element of list. End is right element of list.
+** sum summa ant in queue.
 */
 typedef struct		s_queue
 {
 	t_nlst			*first;
 	t_nlst			*end;
-	//char			name_start[NSIZE];
-	//char			name_end[NSIZE];
-	//int				count;
+	int				sum;
 }					t_queue;
 /*
 ** Structure stack.
@@ -62,9 +61,6 @@ typedef struct		s_queue
 typedef struct		s_stack
 {
 	t_nlst			*first;
-	//char			name_start[NSIZE];
-	//char			name_end[NSIZE];
-	//int				count;
 }					t_stack;
 
 typedef struct		s_ant
@@ -74,5 +70,6 @@ typedef struct		s_ant
 	t_nlst			*sol;;
 	char			name_start[NSIZE];
 	char			name_end[NSIZE];
-	int				count;
+	int				short_cut;
+	int				count_ant;
 }					t_ant;

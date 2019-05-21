@@ -213,7 +213,32 @@ t_queue	*init_queue(void)
 		sys_err("Error malloc\n");
 	queue->first = NULL;
 	queue->end = NULL;
+	queue->sum = 0;
 	return (queue);
+}
+
+/*
+** Insert new list into front queue.
+*/
+
+void	insert_front(t_queue *queue, char *name)
+{
+	t_nlst  *new;
+	t_nlst  *iter;
+
+	new = NULL;
+	iter = queue->first;
+	if (queue->first == NULL && queue->first == NULL)
+	{
+		queue->first = creat_new_lst(name);
+		queue->end = queue->first;
+	}
+	else
+	{
+		new = creat_new_lst(name);
+		new->next = iter;
+		queue->first = new;
+	}
 }
 
 /*
@@ -265,6 +290,7 @@ void	remove_last(t_queue *que)
 	if (iter == temp)
 	{
 		free(temp);
+		temp = NULL;
 		return ;
 	}
 	while (iter->next != temp)
@@ -396,7 +422,7 @@ void	breadth_first_search(t_node *node, t_ant *ant)
 		if (!ft_strcmp(name, ant->name_end))
 		{
 			ft_printf("Finish %s\n", name);
-			ant->count = cur_node->level;
+			ant->short_cut = cur_node->level;
 			return ;
 		}
 		edg_lst = cur_node->edg;
@@ -475,7 +501,7 @@ t_stack	*init_stack(void)
 	new->first = NULL;
 	//new->count = 0;
 	return (new);
-}
+} 
 
 /*
 ** Copy solution list name.
@@ -494,11 +520,8 @@ void	copy_sol_list(t_ant *ant, t_nlst *first)
 		temp = creat_new_lst(first->name_edg);
 		iter->next = temp;
 		iter = temp;
-		//temp->next = iter;
-		//iter = temp;
 		first = first->next;
 	}
-	//ant->sol = temp;
 	ft_printf("Copy list!!!!\n");
 	print_edges(ant->sol);
 }
@@ -543,6 +566,7 @@ void	depth_first_search(t_node *node, t_ant *ant)
 			{
 				push(ant->stack, name);
 				insert(path, name);
+				//print_edges(path->first);
 				ft_printf("Push to stack %s\n", name);
 				break ;
 			}
@@ -569,10 +593,109 @@ t_ant	*init_ant(void)
 		sys_err("Error malloc\n");
 	new->que = init_queue();
 	new->stack = init_stack();
-	new->count = 0;
+	new->short_cut = 0;
+	new->count_ant = 0;
 	return (new);
 }
 
+/*
+** Print ant in room.
+*/
+
+void	print_ant_room(t_nlst *nlst)
+{
+	t_nlst		*iter;
+	int	ant;
+
+	ant = 0;
+	iter = nlst;
+	while (iter != NULL)
+	{
+		ft_printf("L%s-%s ", "x", iter->name_edg);
+		//ft_printf("%d ", ant);
+		ant++;
+		if (iter == iter->next)
+		{
+			ft_putchar('\n');
+			return ;
+		}
+		iter = iter->next;
+	}
+	ft_putchar('\n');
+}
+
+int		ft_lstlen(t_nlst *nlst)
+{
+	int		i;
+	t_nlst	*iter;
+
+	i = 0;
+	iter = nlst;
+	while (iter)
+	{
+		i++;
+		iter = iter->next;
+	}
+	return (i);
+}
+
+/*
+** Print solution.
+*/
+
+void	solution(t_ant *ant)
+{
+	t_queue	*que;
+	t_nlst	*nlst;
+	int		cur_ant;
+	int		i;
+	int		lst_len;
+
+	cur_ant = 1;
+	i = 0;
+	ft_printf("count_ant %d\n", ant->count_ant);
+	que = init_queue();
+	nlst = ant->sol;
+	lst_len = ft_lstlen(ant->sol) - 1;
+	ft_printf("Len lst  %d\n", lst_len);
+	nlst = nlst->next;
+	insert_front(que, nlst->name_edg);
+	while (i < lst_len + ant->count_ant - 1)
+	{
+		print_ant_room(que->first);
+		nlst = nlst->next;
+		if (nlst == NULL)
+			nlst = ant->sol->next;
+		if (cur_ant < lst_len && cur_ant < ant->count_ant)
+		{
+			insert_front(que, nlst->name_edg);
+			cur_ant++;
+		}
+		else	if (cur_ant <= lst_len)
+		{
+			remove_last(que);
+			insert_front(que, nlst->name_edg);
+		}
+		if (i >= lst_len - 1)
+		{
+			remove_first(que);
+			//cur_ant--;
+		}
+		//break ;
+		i++;
+	}
+}
+/*
+	while (!isempty_queue(que) && i < 14)
+		if (!nlst)
+			remove_last(que);
+		else
+		{
+			nlst = nlst->next;
+			if (nlst)
+				insert_front(que, nlst->name_edg);
+		}
+*/
 /*
 ** Read map.
 */
@@ -591,6 +714,8 @@ void	read_map(void)
 	while(get_next_line(0, &line))
 	{
 		ft_printf("%s\n", line);
+		if (ant->count_ant == 0)
+			ant->count_ant = ft_atoi(line);
 		if (check_name_octothorpe(line))
 			node = add_node(node, ant, &line);
 		else	if (check_link_node(line))
@@ -600,6 +725,7 @@ void	read_map(void)
 	//print_list(node);
 	breadth_first_search(node, ant);
 	depth_first_search(node, ant);
+	solution(ant);
 }
 
 int		main(void)
