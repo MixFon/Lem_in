@@ -500,6 +500,7 @@ t_stack	*init_stack(void)
 	if (!(new = (t_stack*)malloc(sizeof(t_stack))))
 		sys_err("Error malloc\n");
 	new->first = NULL;
+	new->lvl = 0;
 	//new->count = 0;
 	return (new);
 } 
@@ -541,7 +542,7 @@ void	depth_first_search(t_node *node, t_ant *ant)
 	push(ant->stack, ant->name_start);
 	path = init_queue();
 	insert(path, ant->name_start);
-	ft_printf("Name start stack %s\n", ant->name_start);
+	ft_printf("Name start stack '%s'\n", ant->name_start);
 	while (!isempty_stack(ant->stack))
 	{
 		name = ant->stack->first->name_edg;
@@ -563,10 +564,11 @@ void	depth_first_search(t_node *node, t_ant *ant)
 				cur_node->dfs_mark = 1;
 				remove_last(path);
 			}
-			else	if (cur_node->dfs_mark == 0)
+			else if (cur_node->dfs_mark == 0 && ant->stack->lvl < ant->short_cut - 1)
 			{
 				push(ant->stack, name);
 				insert(path, name);
+				ant->stack->lvl++;
 				//print_edges(path->first);
 				ft_printf("Push to stack %s\n", name);
 				break ;
@@ -576,6 +578,7 @@ void	depth_first_search(t_node *node, t_ant *ant)
 		if (lst == NULL)
 		{
 			remove_last(path);
+			ant->stack->lvl--;
 			pop(ant->stack, node);
 		}
 		//print_stack(ant->stack->first);
@@ -594,6 +597,7 @@ t_ant	*init_ant(void)
 		sys_err("Error malloc\n");
 	new->que = init_queue();
 	new->stack = init_stack();
+	new->sol = NULL;
 	new->short_cut = 0;
 	new->count_ant = 0;
 	return (new);
@@ -613,6 +617,8 @@ void	print_ant_room(t_nlst *nlst)
 	while (iter)
 	{
 		iter->sum_ant++;
+		if (iter == iter->next)
+			break ;
 		iter = iter->next;
 	}
 	iter = nlst;
@@ -663,6 +669,8 @@ void	solution(t_ant *ant)
 	ft_printf("count_ant %d\n", ant->count_ant);
 	que = init_queue();
 	nlst = ant->sol;
+	if (!nlst)
+		sys_err("Not solution\n");
 	lst_len = ft_lstlen(ant->sol) - 1;
 	ft_printf("Len lst  %d\n", lst_len);
 	nlst = nlst->next;
@@ -683,7 +691,7 @@ void	solution(t_ant *ant)
 			remove_last(que);
 			insert_front(que, nlst->name_edg);
 		}
-		if (i >= lst_len - 1 && i >= ant->count_ant - 1 && lst_len < ant->count_ant)
+		if(i >= lst_len - 1 && i >= ant->count_ant - 1 && lst_len <= ant->count_ant)
 			remove_last(que);
 		else	if (i >= lst_len - 1 && lst_len > ant->count_ant)
 			remove_first(que);
@@ -729,9 +737,9 @@ void	read_map(void)
 		ft_strdel(&line);
 	}
 	//print_list(node);
-	//breadth_first_search(node, ant);
+	breadth_first_search(node, ant);
 	depth_first_search(node, ant);
-	//solution(ant);
+	solution(ant);
 }
 
 int		main(void)

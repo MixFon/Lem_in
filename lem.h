@@ -63,6 +63,7 @@ typedef struct		s_queue
 typedef struct		s_stack
 {
 	t_nlst			*first;
+	int				lvl;
 }					t_stack;
 
 typedef struct		s_ant
@@ -75,3 +76,5 @@ typedef struct		s_ant
 	int				short_cut;
 	int				count_ant;
 }					t_ant;
+
+void	depth_first_search(t_node *node, t_ant *ant);
