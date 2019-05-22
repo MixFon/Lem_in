@@ -578,7 +578,7 @@ void	depth_first_search(t_node *node, t_ant *ant)
 			remove_last(path);
 			pop(ant->stack, node);
 		}
-		print_stack(ant->stack->first);
+		//print_stack(ant->stack->first);
 	}
 }
 
@@ -729,9 +729,9 @@ void	read_map(void)
 		ft_strdel(&line);
 	}
 	//print_list(node);
-	breadth_first_search(node, ant);
+	//breadth_first_search(node, ant);
 	depth_first_search(node, ant);
-	solution(ant);
+	//solution(ant);
 }
 
 int		main(void)
