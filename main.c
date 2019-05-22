@@ -177,6 +177,7 @@ t_nlst	*creat_new_lst(char *name)
 	ft_strncpy(new->name_edg, name, len);
 	new->name_edg[len] = '\0';
 	new->next = NULL;
+	new->sum_ant = 0;
 	return (new);
 }
 
@@ -607,11 +608,17 @@ void	print_ant_room(t_nlst *nlst)
 	t_nlst		*iter;
 	int	ant;
 
-	ant = 0;
+	ant = 1;
+	iter = nlst;
+	while (iter)
+	{
+		iter->sum_ant++;
+		iter = iter->next;
+	}
 	iter = nlst;
 	while (iter != NULL)
 	{
-		ft_printf("L%s-%s ", "x", iter->name_edg);
+		ft_printf("L%d-%s ", iter->sum_ant, iter->name_edg);
 		//ft_printf("%d ", ant);
 		ant++;
 		if (iter == iter->next)
@@ -671,16 +678,15 @@ void	solution(t_ant *ant)
 			insert_front(que, nlst->name_edg);
 			cur_ant++;
 		}
-		else	if (cur_ant <= lst_len)
+		else	if (cur_ant <= lst_len && lst_len > ant->count_ant)
 		{
 			remove_last(que);
 			insert_front(que, nlst->name_edg);
 		}
-		if (i >= lst_len - 1)
-		{
+		if (i >= lst_len - 1 && i >= ant->count_ant - 1 && lst_len < ant->count_ant)
+			remove_last(que);
+		else	if (i >= lst_len - 1 && lst_len > ant->count_ant)
 			remove_first(que);
-			//cur_ant--;
-		}
 		//break ;
 		i++;
 	}

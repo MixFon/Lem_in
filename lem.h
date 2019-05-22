@@ -20,11 +20,13 @@
 # define NSIZE 10
 /*
 ** List of names for edges and queue.
+** sum_ant - count ant in room in this moment. 
 */
 typedef struct		s_nlst
 {
 	char			name_edg[NSIZE];
 	struct s_nlst	*next;
+	int				sum_ant;
 }					t_nlst;
 /*
 ** Structure node.
