@@ -63,7 +63,6 @@ typedef struct		s_queue
 typedef struct		s_stack
 {
 	t_nlst			*first;
-	int				lvl;
 }					t_stack;
 
 typedef struct		s_ant

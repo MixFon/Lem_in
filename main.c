@@ -432,12 +432,13 @@ void	breadth_first_search(t_node *node, t_ant *ant)
 		while (edg_lst != NULL)
 		{
 			cur_node = search_node(node, edg_lst->name_edg);
-			cur_node->level = i;
+			//cur_node->level = i;
 			if (cur_node->mark_bfs == 0)
 			{
 				insert(ant->que, edg_lst->name_edg);
 				cur_node->mark_bfs = 1;
-				cur_node->level++;
+				//cur_node->level++;
+				cur_node->level = i + 1;
 				ft_printf("Insert %s\n", edg_lst->name_edg);
 			}
 			edg_lst = edg_lst->next;
@@ -500,8 +501,6 @@ t_stack	*init_stack(void)
 	if (!(new = (t_stack*)malloc(sizeof(t_stack))))
 		sys_err("Error malloc\n");
 	new->first = NULL;
-	new->lvl = 0;
-	//new->count = 0;
 	return (new);
 } 
 
@@ -515,56 +514,116 @@ void	copy_sol_list(t_ant *ant, t_nlst *first)
 	t_nlst *iter;
 
 	iter = creat_new_lst(first->name_edg);
-	ant->sol = iter;
 	first = first->next;
 	while (first)
 	{
 		temp = creat_new_lst(first->name_edg);
-		iter->next = temp;
+		temp->next = iter;
 		iter = temp;
 		first = first->next;
 	}
+	ant->sol = iter;
 	ft_printf("Copy list!!!!\n");
 	print_edges(ant->sol);
 }
 
+void	add_new_nlst(t_nlst **sol, char *name)
+{
+	t_nlst	*iter;
+
+	iter = creat_new_lst(name);
+	iter->next = *sol;
+	*sol = iter;
+}
+
 /*
 ** Depth-first search.
+** Create list short path.
 */
 
+void	depth_first_search(t_node *node, t_ant *ant)
+{
+	t_node	*cur_node;
+	t_nlst	*lst;
+	char	*name;
+	int		s_lvl;
+
+	push(ant->stack, ant->name_end);
+	ant->sol = creat_new_lst(ant->name_end);
+	ft_printf("Name start stack '%s'\n", ant->name_end);
+	while (!isempty_stack(ant->stack))
+	{
+		name = ant->stack->first->name_edg;
+		cur_node = search_node(node, name);
+		cur_node->dfs_mark = 1;
+		s_lvl = cur_node->level;
+		ft_printf("%s level %d\n",name, s_lvl);
+		lst = cur_node->edg;
+		while (lst)
+		{
+			name = lst->name_edg;
+			cur_node = search_node(node, name);
+			ft_printf("cha %s level %d\n", name, cur_node->level);
+			if (!ft_strcmp(name, ant->name_start))
+			{
+				ft_printf("Find! %s\n", name);
+				ft_printf("Path\n");
+				add_new_nlst(&ant->sol, name);
+				print_edges(ant->sol);
+				cur_node->dfs_mark = 1;
+				return ;
+			}
+			else if (cur_node->level == s_lvl - 1 && cur_node->dfs_mark == 0)
+			{
+				push(ant->stack, name);
+				add_new_nlst(&ant->sol, name);
+				ft_printf("Push to stack %s\n", name);
+				break ;
+			}
+			lst = lst->next;
+		}
+		print_stack(ant->stack->first);
+	}
+}
+/*
 void	depth_first_search(t_node *node, t_ant *ant)
 {
 	t_node	*cur_node;
 	t_queue	*path;
 	t_nlst	*lst;
 	char	*name;
+	int		s_lvl;
 
-	push(ant->stack, ant->name_start);
+	push(ant->stack, ant->name_end);
 	path = init_queue();
-	insert(path, ant->name_start);
-	ft_printf("Name start stack '%s'\n", ant->name_start);
+	insert(path, ant->name_end);
+	ft_printf("Name start stack '%s'\n", ant->name_end);
 	while (!isempty_stack(ant->stack))
 	{
 		name = ant->stack->first->name_edg;
 		//ft_printf("Name first stack %s\n", name);
 		cur_node = search_node(node, name);
 		cur_node->dfs_mark = 1;
+		s_lvl = cur_node->level;
+		ft_printf("%s level %d\n",name, s_lvl);
 		lst = cur_node->edg;
 		while (lst)
 		{
 			name = lst->name_edg;
 			cur_node = search_node(node, name);
-			if (!ft_strcmp(name, ant->name_end))
+			ft_printf("cha %s level %d\n", name, cur_node->level);
+			if (!ft_strcmp(name, ant->name_start))
 			{
 				ft_printf("Find! %s\n", name);
 				ft_printf("Path\n");
 				insert(path, name);
-				copy_sol_list(ant, path->first);
+				//copy_sol_list(ant, path->first);
 				//print_edges(path->first);
 				cur_node->dfs_mark = 1;
 				remove_last(path);
+				//return ;
 			}
-			else if (cur_node->dfs_mark == 0 && ant->stack->lvl < ant->short_cut - 1)
+			else if (cur_node->level == s_lvl - 1 && cur_node->dfs_mark == 0)
 			{
 				push(ant->stack, name);
 				insert(path, name);
@@ -577,13 +636,15 @@ void	depth_first_search(t_node *node, t_ant *ant)
 		}
 		if (lst == NULL)
 		{
+			ft_printf("Remove %s\n", path->end->name_edg);
 			remove_last(path);
 			ant->stack->lvl--;
 			pop(ant->stack, node);
 		}
-		//print_stack(ant->stack->first);
+		print_stack(ant->stack->first);
 	}
 }
+*/
 
 /*
 ** Init struct ant.
