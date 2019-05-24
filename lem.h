@@ -60,16 +60,17 @@ typedef struct		s_queue
 ** Structure stack.
 ** First is left element of list.
 */
+/*
 typedef struct		s_stack
 {
 	t_nlst			*first;
 }					t_stack;
-
+*/
 typedef struct		s_ant
 {
 	t_queue			*que;
-	t_stack			*stack;
-	t_nlst			*sol;;
+	//t_stack			*stack;
+	t_nlst			*short_way;
 	char			name_start[NSIZE];
 	char			name_end[NSIZE];
 	int				short_cut;

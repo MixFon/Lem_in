@@ -133,22 +133,8 @@ void	print_edges(t_nlst *edg)
 }
 
 /*
-** Print stack.
-*/
-
-void	print_stack(t_nlst *lst)
-{
-	//ft_printf("Stack:\n");
-	while (lst)
-	{
-		ft_printf("%s ", lst->name_edg);
-		lst = lst->next;
-	}
-	ft_printf("\n");
-}
-
-/*
-** Print list. For test.
+** Print list. 
+** For test.
 */
 
 void	print_list(t_node *node)
@@ -447,86 +433,6 @@ void	breadth_first_search(t_node *node, t_ant *ant)
 	}
 }
 
-/*
-** -------------------------------   Stack.   ---------------------------------
-*/
-
-void	pop(t_stack *stack, t_node *node)
-{
-	t_nlst	*temp;
-	t_node	*cur_node;
-
-	temp = stack->first;
-	stack->first = stack->first->next;
-	temp->next = NULL;
-	cur_node = search_node(node, temp->name_edg);
-	cur_node->dfs_mark = 2;
-	//name = ft_strdup(temp->name_edg);
-	free(temp);
-}
-
-void	push(t_stack *stack, char *name)
-{
-	t_nlst *new_lst;
-	t_nlst *temp;
-
-	temp = stack->first;
-	//stack->count++;
-	if (stack->first == NULL)
-		stack->first = creat_new_lst(name);
-	else
-	{
-		new_lst = creat_new_lst(name);
-		new_lst->next = temp;
-		stack->first = new_lst;	
-	}
-}
-
-int		isempty_stack(t_stack *stack)
-{
-	if (stack->first == NULL)
-		return (1);
-	else
-		return (0);
-}
-
-/*
-** Init stack.
-*/
-
-t_stack	*init_stack(void)
-{
-	t_stack *new;
-
-	if (!(new = (t_stack*)malloc(sizeof(t_stack))))
-		sys_err("Error malloc\n");
-	new->first = NULL;
-	return (new);
-} 
-
-/*
-** Copy solution list name.
-*/
-
-void	copy_sol_list(t_ant *ant, t_nlst *first)
-{
-	t_nlst *temp;
-	t_nlst *iter;
-
-	iter = creat_new_lst(first->name_edg);
-	first = first->next;
-	while (first)
-	{
-		temp = creat_new_lst(first->name_edg);
-		temp->next = iter;
-		iter = temp;
-		first = first->next;
-	}
-	ant->sol = iter;
-	ft_printf("Copy list!!!!\n");
-	print_edges(ant->sol);
-}
-
 void	add_new_nlst(t_nlst **sol, char *name)
 {
 	t_nlst	*iter;
@@ -541,19 +447,20 @@ void	add_new_nlst(t_nlst **sol, char *name)
 ** Create list short path.
 */
 
-void	depth_first_search(t_node *node, t_ant *ant)
+void	create_short_way(t_node *node, t_ant *ant)
 {
 	t_node	*cur_node;
 	t_nlst	*lst;
 	char	*name;
 	int		s_lvl;
 
-	push(ant->stack, ant->name_end);
-	ant->sol = creat_new_lst(ant->name_end);
+	//push(ant->stack, ant->name_end);
+	ant->short_way = creat_new_lst(ant->name_end);
 	ft_printf("Name start stack '%s'\n", ant->name_end);
-	while (!isempty_stack(ant->stack))
+	//while (!isempty_stack(ant->stack))
+	while (ant->short_way != NULL)
 	{
-		name = ant->stack->first->name_edg;
+		name = ant->short_way->name_edg;
 		cur_node = search_node(node, name);
 		cur_node->dfs_mark = 1;
 		s_lvl = cur_node->level;
@@ -568,83 +475,23 @@ void	depth_first_search(t_node *node, t_ant *ant)
 			{
 				ft_printf("Find! %s\n", name);
 				ft_printf("Path\n");
-				add_new_nlst(&ant->sol, name);
-				print_edges(ant->sol);
+				add_new_nlst(&ant->short_way, name);
+				print_edges(ant->short_way);
 				cur_node->dfs_mark = 1;
 				return ;
 			}
 			else if (cur_node->level == s_lvl - 1 && cur_node->dfs_mark == 0)
 			{
-				push(ant->stack, name);
-				add_new_nlst(&ant->sol, name);
+				//push(ant->stack, name);
+				add_new_nlst(&ant->short_way, name);
 				ft_printf("Push to stack %s\n", name);
 				break ;
 			}
 			lst = lst->next;
 		}
-		print_stack(ant->stack->first);
+		//print_stack(ant->stack->first);
 	}
 }
-/*
-void	depth_first_search(t_node *node, t_ant *ant)
-{
-	t_node	*cur_node;
-	t_queue	*path;
-	t_nlst	*lst;
-	char	*name;
-	int		s_lvl;
-
-	push(ant->stack, ant->name_end);
-	path = init_queue();
-	insert(path, ant->name_end);
-	ft_printf("Name start stack '%s'\n", ant->name_end);
-	while (!isempty_stack(ant->stack))
-	{
-		name = ant->stack->first->name_edg;
-		//ft_printf("Name first stack %s\n", name);
-		cur_node = search_node(node, name);
-		cur_node->dfs_mark = 1;
-		s_lvl = cur_node->level;
-		ft_printf("%s level %d\n",name, s_lvl);
-		lst = cur_node->edg;
-		while (lst)
-		{
-			name = lst->name_edg;
-			cur_node = search_node(node, name);
-			ft_printf("cha %s level %d\n", name, cur_node->level);
-			if (!ft_strcmp(name, ant->name_start))
-			{
-				ft_printf("Find! %s\n", name);
-				ft_printf("Path\n");
-				insert(path, name);
-				//copy_sol_list(ant, path->first);
-				//print_edges(path->first);
-				cur_node->dfs_mark = 1;
-				remove_last(path);
-				//return ;
-			}
-			else if (cur_node->level == s_lvl - 1 && cur_node->dfs_mark == 0)
-			{
-				push(ant->stack, name);
-				insert(path, name);
-				ant->stack->lvl++;
-				//print_edges(path->first);
-				ft_printf("Push to stack %s\n", name);
-				break ;
-			}
-			lst = lst->next;
-		}
-		if (lst == NULL)
-		{
-			ft_printf("Remove %s\n", path->end->name_edg);
-			remove_last(path);
-			ant->stack->lvl--;
-			pop(ant->stack, node);
-		}
-		print_stack(ant->stack->first);
-	}
-}
-*/
 
 /*
 ** Init struct ant.
@@ -657,8 +504,8 @@ t_ant	*init_ant(void)
 	if(!(new = (t_ant*)malloc(sizeof(t_ant))))
 		sys_err("Error malloc\n");
 	new->que = init_queue();
-	new->stack = init_stack();
-	new->sol = NULL;
+	//new->stack = init_stack();
+	new->short_way = NULL;
 	new->short_cut = 0;
 	new->count_ant = 0;
 	return (new);
@@ -729,10 +576,10 @@ void	solution(t_ant *ant)
 	i = 0;
 	ft_printf("count_ant %d\n", ant->count_ant);
 	que = init_queue();
-	nlst = ant->sol;
+	nlst = ant->short_way;
 	if (!nlst)
 		sys_err("Not solution\n");
-	lst_len = ft_lstlen(ant->sol) - 1;
+	lst_len = ft_lstlen(ant->short_way) - 1;
 	ft_printf("Len lst  %d\n", lst_len);
 	nlst = nlst->next;
 	insert_front(que, nlst->name_edg);
@@ -741,7 +588,7 @@ void	solution(t_ant *ant)
 		print_ant_room(que->first);
 		nlst = nlst->next;
 		if (nlst == NULL)
-			nlst = ant->sol->next;
+			nlst = ant->short_way->next;
 		if (cur_ant < lst_len && cur_ant < ant->count_ant)
 		{
 			insert_front(que, nlst->name_edg);
@@ -760,17 +607,7 @@ void	solution(t_ant *ant)
 		i++;
 	}
 }
-/*
-	while (!isempty_queue(que) && i < 14)
-		if (!nlst)
-			remove_last(que);
-		else
-		{
-			nlst = nlst->next;
-			if (nlst)
-				insert_front(que, nlst->name_edg);
-		}
-*/
+
 /*
 ** Read map.
 */
@@ -799,7 +636,7 @@ void	read_map(void)
 	}
 	//print_list(node);
 	breadth_first_search(node, ant);
-	depth_first_search(node, ant);
+	create_short_way(node, ant);
 	solution(ant);
 }
 
@@ -821,3 +658,154 @@ int		main(void)
 	read_map();
 	return (0);
 }
+// ------------------------------------------------------------------------------
+/*
+
+void	print_stack(t_nlst *lst)
+{
+	//ft_printf("Stack:\n");
+	while (lst)
+	{
+		ft_printf("%s ", lst->name_edg);
+		lst = lst->next;
+	}
+	ft_printf("\n");
+}
+
+
+void	pop(t_stack *stack, t_node *node)
+{
+	t_nlst	*temp;
+	t_node	*cur_node;
+
+	temp = stack->first;
+	stack->first = stack->first->next;
+	temp->next = NULL;
+	cur_node = search_node(node, temp->name_edg);
+	cur_node->dfs_mark = 2;
+	//name = ft_strdup(temp->name_edg);
+	free(temp);
+}
+
+void	push(t_stack *stack, char *name)
+{
+	t_nlst *new_lst;
+	t_nlst *temp;
+
+	temp = stack->first;
+	//stack->count++;
+	if (stack->first == NULL)
+		stack->first = creat_new_lst(name);
+	else
+	{
+		new_lst = creat_new_lst(name);
+		new_lst->next = temp;
+		stack->first = new_lst;	
+	}
+}
+
+int		isempty_stack(t_stack *stack)
+{
+	if (stack->first == NULL)
+		return (1);
+	else
+		return (0);
+}
+*/
+/*
+** Init stack.
+*/
+/*
+t_stack	*init_stack(void)
+{
+	t_stack *new;
+
+	if (!(new = (t_stack*)malloc(sizeof(t_stack))))
+		sys_err("Error malloc\n");
+	new->first = NULL;
+	return (new);
+} 
+*/
+/*
+** Copy solution list name.
+*/
+/*
+void	copy_sol_list(t_ant *ant, t_nlst *first)
+{
+	t_nlst *temp;
+	t_nlst *iter;
+
+	iter = creat_new_lst(first->name_edg);
+	first = first->next;
+	while (first)
+	{
+		temp = creat_new_lst(first->name_edg);
+		temp->next = iter;
+		iter = temp;
+		first = first->next;
+	}
+	ant->short_way = iter;
+	ft_printf("Copy list!!!!\n");
+	print_edges(ant->short_way);
+}
+*/
+/*
+void	depth_first_search(t_node *node, t_ant *ant)
+{
+	t_node	*cur_node;
+	t_queue	*path;
+	t_nlst	*lst;
+	char	*name;
+	int		s_lvl;
+
+	push(ant->stack, ant->name_end);
+	path = init_queue();
+	insert(path, ant->name_end);
+	ft_printf("Name start stack '%s'\n", ant->name_end);
+	while (!isempty_stack(ant->stack))
+	{
+		name = ant->stack->first->name_edg;
+		//ft_printf("Name first stack %s\n", name);
+		cur_node = search_node(node, name);
+		cur_node->dfs_mark = 1;
+		s_lvl = cur_node->level;
+		ft_printf("%s level %d\n",name, s_lvl);
+		lst = cur_node->edg;
+		while (lst)
+		{
+			name = lst->name_edg;
+			cur_node = search_node(node, name);
+			ft_printf("cha %s level %d\n", name, cur_node->level);
+			if (!ft_strcmp(name, ant->name_start))
+			{
+				ft_printf("Find! %s\n", name);
+				ft_printf("Path\n");
+				insert(path, name);
+				//copy_sol_list(ant, path->first);
+				//print_edges(path->first);
+				cur_node->dfs_mark = 1;
+				remove_last(path);
+				//return ;
+			}
+			else if (cur_node->level == s_lvl - 1 && cur_node->dfs_mark == 0)
+			{
+				push(ant->stack, name);
+				insert(path, name);
+				ant->stack->lvl++;
+				//print_edges(path->first);
+				ft_printf("Push to stack %s\n", name);
+				break ;
+			}
+			lst = lst->next;
+		}
+		if (lst == NULL)
+		{
+			ft_printf("Remove %s\n", path->end->name_edg);
+			remove_last(path);
+			ant->stack->lvl--;
+			pop(ant->stack, node);
+		}
+		print_stack(ant->stack->first);
+	}
+}
+*/
