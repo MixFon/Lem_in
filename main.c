@@ -261,30 +261,37 @@ int		isempty_queue(t_queue *que)
 ** Remove last elemet of list. And return name of last element.
 */
 
-void	remove_last(t_queue *que)
+void	remove_last(t_queue *que, int count_ways)
 {
 	t_nlst	*iter;
 	t_nlst	*temp;
+	int		i;
 
-	if (isempty_queue(que))
+	i = 0;
+	while (i < count_ways)
 	{
-		ft_putendl("Queue empty");
-		que->end = NULL;
-		return ;
-	}
-	iter = que->first;
-	temp = que->end;
-	if (iter == temp)
-	{
+		if (isempty_queue(que))
+		{
+			ft_putendl("Queue empty");
+			que->end = NULL;
+			return ;
+		}
+		iter = que->first;
+		temp = que->end;
+		if (iter == temp)
+		{
+			//free(temp);
+			temp = NULL;
+			return ;
+		}
+		while (iter->next != temp)
+			iter = iter->next;
+		que->end = iter;
+		que->end->next = NULL;
 		free(temp);
-		temp = NULL;
-		return ;
+		i++;
 	}
-	while (iter->next != temp)
-		iter = iter->next;
-	que->end = iter;
-	que->end->next = NULL;
-	free(temp);
+
 }
 
 
@@ -292,21 +299,27 @@ void	remove_last(t_queue *que)
 ** Remove first elemet of list. And return name of first element.
 */
 
-char	*remove_first(t_queue *que)
+char	*remove_first(t_queue *que, int count_ways)
 {
 	t_nlst	*iter;
 	char	*name;
+	int		i;
 
-	if (isempty_queue(que))
+	i = 0;
+	while (i < count_ways)
 	{
-		que->end = NULL;
-		return (NULL);
+		if (isempty_queue(que))
+		{
+			que->end = NULL;
+			return (NULL);
+		}
+		iter = que->first;
+		que->first = que->first->next;
+		iter->next = NULL;
+		name = ft_strdup(iter->name_edg);
+		free(iter);
+		i++;
 	}
-	iter = que->first;
-	que->first = que->first->next;
-	iter->next = NULL;
-	name = ft_strdup(iter->name_edg);
-	free(iter);
 	return (name);
 }
 
@@ -389,6 +402,51 @@ t_node	*add_node(t_node *node, t_ant *ant, char **line)
 
 
 /*
+** Cheack of a short path.
+*/
+
+int		cheack_short_path(t_node *node, t_ant *ant)
+{
+	t_node	*cur_node;
+	t_nlst	*iter;
+	int		s_lvl;
+
+	cur_node = search_node(node, ant->name_end);
+	iter = cur_node->edg;
+	s_lvl = cur_node->level;
+	while (iter)
+	{
+		cur_node = search_node(node, iter->name_edg);
+		if (cur_node->level == s_lvl - 1 && cur_node->dfs_mark == 0)
+			return (1);
+		iter = iter->next;
+	}
+	return (0);
+}
+
+/*
+** Add new list of way.
+*/
+
+void	short_ways(t_node *node, t_ant *ant)
+{
+	t_ways *iter;
+
+	while (cheack_short_path(node, ant))
+	{
+		if (ant->ways == NULL)
+		{
+			ant->ways = create_short_way(node, ant);
+			ant->count_ways++;
+			continue ;
+		}
+		iter = create_short_way(node, ant);
+		ant->count_ways++;
+		iter->next = ant->ways->next;
+		ant->ways->next = iter;
+	}
+}
+/*
 ** Breadth-first search.
 */
 
@@ -399,17 +457,27 @@ void	breadth_first_search(t_node *node, t_ant *ant)
 	char	*name;
 	int		i;
 
-	insert(ant->que, ant->name_start);
 	i = 0;
+	insert(ant->que, ant->name_start);
 	while (!isempty_queue(ant->que))
 	{
-		name = remove_first(ant->que);
+		name = remove_first(ant->que, 1);
 		cur_node = search_node(node, name);
 		ft_printf("Remove %s Level %d\n", name, cur_node->level);
 		if (!ft_strcmp(name, ant->name_end))
 		{
 			ft_printf("Finish %s\n", name);
-			ant->short_cut = cur_node->level;
+			ant->lvl = cur_node->level;
+			//ft_printf("Cheack short way %d\n", cheack_short_path(node, ant));
+			short_ways(node, ant);
+			//short_ways(node, ant);
+			//ft_printf("Cheack short way %d\n", cheack_short_path(node, ant));
+			//cheack_short_way(ant);
+			//solution(ant);
+			solution(ant);
+			//ant->ways = ant->ways->next;
+			//cheack_short_way(ant);
+			//solution(ant);
 			return ;
 		}
 		edg_lst = cur_node->edg;
@@ -447,20 +515,37 @@ void	add_new_nlst(t_nlst **sol, char *name)
 ** Create list short path.
 */
 
-void	create_short_way(t_node *node, t_ant *ant)
+t_ways	*create_new_way(void)
+{
+	t_ways *way;
+
+	if(!(way = (t_ways *)malloc(sizeof(t_ways))))
+		sys_err("Error malloc\n");
+	way->way = NULL;;
+	way->len_way = 1;
+	way->next = NULL;
+	return (way);
+}
+
+/*
+** Depth-first search.
+** Create list short path.
+*/
+
+t_ways	*create_short_way(t_node *node, t_ant *ant)
 {
 	t_node	*cur_node;
 	t_nlst	*lst;
+	t_ways	*iter;
 	char	*name;
 	int		s_lvl;
 
-	//push(ant->stack, ant->name_end);
-	ant->short_way = creat_new_lst(ant->name_end);
+	iter = create_new_way();
+	iter->way = creat_new_lst(ant->name_end);
 	ft_printf("Name start stack '%s'\n", ant->name_end);
-	//while (!isempty_stack(ant->stack))
-	while (ant->short_way != NULL)
+	while (iter->way != NULL)
 	{
-		name = ant->short_way->name_edg;
+		name = iter->way->name_edg;
 		cur_node = search_node(node, name);
 		cur_node->dfs_mark = 1;
 		s_lvl = cur_node->level;
@@ -475,22 +560,25 @@ void	create_short_way(t_node *node, t_ant *ant)
 			{
 				ft_printf("Find! %s\n", name);
 				ft_printf("Path\n");
-				add_new_nlst(&ant->short_way, name);
-				print_edges(ant->short_way);
+				ft_printf("len_way %d\n", iter->len_way);
+				add_new_nlst(&iter->way, name);
+				print_edges(iter->way);
 				cur_node->dfs_mark = 1;
-				return ;
+			//	ant->ways = iter;
+				return (iter) ;
 			}
 			else if (cur_node->level == s_lvl - 1 && cur_node->dfs_mark == 0)
 			{
-				//push(ant->stack, name);
-				add_new_nlst(&ant->short_way, name);
-				ft_printf("Push to stack %s\n", name);
+				add_new_nlst(&iter->way, name);
+				iter->len_way++;
+				ft_printf("Push to list way %s\n", name);
 				break ;
 			}
 			lst = lst->next;
 		}
 		//print_stack(ant->stack->first);
 	}
+	return (NULL);
 }
 
 /*
@@ -505,9 +593,11 @@ t_ant	*init_ant(void)
 		sys_err("Error malloc\n");
 	new->que = init_queue();
 	//new->stack = init_stack();
-	new->short_way = NULL;
-	new->short_cut = 0;
+	//new->short_way = NULL;
+	new->ways = NULL;
+	new->lvl = 0;
 	new->count_ant = 0;
+	new->count_ways = 0;
 	return (new);
 }
 
@@ -515,26 +605,31 @@ t_ant	*init_ant(void)
 ** Print ant in room.
 */
 
-void	print_ant_room(t_nlst *nlst)
+void	print_ant_room(t_nlst *nlst, int ant_path, int count_ways)
 {
-	t_nlst		*iter;
-	int	ant;
+	t_nlst	*iter;
+	int		ant;
+	static int	bl = 0;
+	static int	i = 0;
 
 	ant = 1;
 	iter = nlst;
 	while (iter)
 	{
-		iter->sum_ant++;
+		iter->sum_ant = ant + i;
+		if (ant == ant_path)
+			bl = 1;
+		ant++;
 		if (iter == iter->next)
 			break ;
 		iter = iter->next;
 	}
+	if (bl == 1)
+		i += count_ways;
 	iter = nlst;
 	while (iter != NULL)
 	{
 		ft_printf("L%d-%s ", iter->sum_ant, iter->name_edg);
-		//ft_printf("%d ", ant);
-		ant++;
 		if (iter == iter->next)
 		{
 			ft_putchar('\n');
@@ -561,52 +656,131 @@ int		ft_lstlen(t_nlst *nlst)
 }
 
 /*
+** Admission room of name start.
+*/
+
+void	admission_name_start(t_ant *ant)
+{
+	t_ways	*ways;
+	t_nlst	*nlst;
+
+	ways = ant->ways;
+	while (ways != NULL)
+	{
+		nlst = ways->way;
+		if (nlst == NULL)
+			continue ;
+		ways->way = ways->way->next;
+		free(nlst);
+		ways = ways->next;
+	}
+
+}
+
+/*
+** Insert queue.
+*/
+
+void	insert_queue(t_queue *que, t_ant *ant)
+{
+	t_ways	*ways;
+	t_nlst	*nlst;
+	
+	ways = ant->ways;
+	while (ways != NULL)
+	{
+		nlst = ways->way;
+		if (nlst == NULL)
+		{
+			ways = ways->next;
+			continue ;
+		}
+		insert_front(que, nlst->name_edg);
+		ways->way = ways->way->next;
+		free(nlst);
+		ways = ways->next;
+	}
+}
+
+/*
 ** Print solution.
 */
 
 void	solution(t_ant *ant)
 {
 	t_queue	*que;
-	t_nlst	*nlst;
+	//t_nlst	*nlst;
 	int		cur_ant;
 	int		i;
 	int		lst_len;
 
 	cur_ant = 1;
 	i = 0;
+	admission_name_start(ant);
+	//print_edges(ant->ways->way);
 	ft_printf("count_ant %d\n", ant->count_ant);
+	ft_printf("count_ways %d\n", ant->count_ways);
 	que = init_queue();
-	nlst = ant->short_way;
-	if (!nlst)
-		sys_err("Not solution\n");
-	lst_len = ft_lstlen(ant->short_way) - 1;
+	//nlst = ant->ways->way;
+	//if (!nlst)
+	//	sys_err("Not solution\n");
+	//lst_len = ft_lstlen(ant->ways->way) - 1;
+	lst_len = ant->ways->len_way;
 	ft_printf("Len lst  %d\n", lst_len);
-	nlst = nlst->next;
-	insert_front(que, nlst->name_edg);
-	while (i < lst_len + ant->count_ant - 1)
+	//nlst = nlst->next;
+	insert_queue(que, ant);
+	//insert_front(que, nlst->name_edg);
+	while (i < ant->ways->len_way + (ant->count_ant / ant->count_ways) - 1)
 	{
-		print_ant_room(que->first);
-		nlst = nlst->next;
-		if (nlst == NULL)
-			nlst = ant->short_way->next;
-		if (cur_ant < lst_len && cur_ant < ant->count_ant)
+		//ft_putendl("Hello");
+		print_ant_room(que->first, ant->count_ways * lst_len, ant->count_ways);
+		//ft_putendl("Hello");
+		//nlst = nlst->next;
+		//if (nlst == NULL)
+			//nlst = ant->ways->way->next;
+		if (cur_ant < lst_len && cur_ant < ant->count_ant / ant->count_ways)
 		{
-			insert_front(que, nlst->name_edg);
+			//ft_putendl("Hello1");
+			insert_queue(que, ant);
+			//insert_front(que, nlst->name_edg);
 			cur_ant++;
 		}
-		else	if (cur_ant <= lst_len && lst_len > ant->count_ant)
+		else if (cur_ant <= lst_len && lst_len > ant->count_ant / ant->count_ways)
 		{
-			remove_last(que);
-			insert_front(que, nlst->name_edg);
+			//ft_putendl("Hello2");
+			remove_last(que, ant->count_ways);
+			insert_queue(que, ant);
+			//insert_front(que, nlst->name_edg);
 		}
-		if(i >= lst_len - 1 && i >= ant->count_ant - 1 && lst_len <= ant->count_ant)
-			remove_last(que);
+		if(i >= lst_len - 1 && i >= ant->count_ant / ant->count_ways - 1 &&
+				lst_len <= ant->count_ant)
+		{
+			//ft_putendl("Hello3");
+			remove_last(que, ant->count_ways);
+		}
 		else	if (i >= lst_len - 1 && lst_len > ant->count_ant)
-			remove_first(que);
+		{
+			//ft_putendl("Hello4");
+			remove_first(que, ant->count_ways);
+		}
 		//break ;
 		i++;
 	}
 }
+
+/*
+** Cheack short way.
+*/
+/*
+void	cheack_short_way(t_ant *ant)
+{
+	int	len;
+
+	len = ft_lstlen(ant->ways->way);
+	if (ant->count_ant <= len)
+		solution(ant);
+}
+*/
 
 /*
 ** Read map.
@@ -636,8 +810,7 @@ void	read_map(void)
 	}
 	//print_list(node);
 	breadth_first_search(node, ant);
-	create_short_way(node, ant);
-	solution(ant);
+	//solution(ant);
 }
 
 int		main(void)

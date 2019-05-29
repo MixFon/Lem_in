@@ -66,15 +66,30 @@ typedef struct		s_stack
 	t_nlst			*first;
 }					t_stack;
 */
+/*
+** List ways.
+*/
+typedef struct		s_ways
+{
+	t_nlst			*way;
+	int				len_way;
+	struct s_ways	*next;
+}					t_ways;
+
 typedef struct		s_ant
 {
 	t_queue			*que;
 	//t_stack			*stack;
-	t_nlst			*short_way;
+	//t_nlst			*short_way;
+	t_ways			*ways;
 	char			name_start[NSIZE];
 	char			name_end[NSIZE];
-	int				short_cut;
+	int				lvl;
 	int				count_ant;
+	int				count_ways;
 }					t_ant;
 
 void	depth_first_search(t_node *node, t_ant *ant);
+t_ways	*create_short_way(t_node *node, t_ant *ant);
+void	cheack_short_way(t_ant *ant);
+void	solution(t_ant *ant);
