@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:18:25 by widraugr          #+#    #+#             */
-/*   Updated: 2019/05/16 15:29:19 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/05/31 16:38:29 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,7 @@ t_node	*new_node(char *line)
 	new->mark_bfs = 0;
 	new->dfs_mark = 0;
 	new->level = 0;
+	new->weight = 0;
 	new->next = NULL;
 	new->edg = NULL;
 	infill_node(new, line);
@@ -137,12 +138,12 @@ void	print_edges(t_nlst *edg)
 ** For test.
 */
 
-void	print_list(t_node *node)
+void	print_node(t_node *node)
 {
 	while (node)
 	{
-		ft_printf("name = %s, x = %d, y = %d\n",
-			node->name, node->coor_x, node->coor_y);
+		ft_printf("name = %s, x = %d, y = %d level  = %d weight = %d\n",
+			node->name, node->coor_x, node->coor_y, node->level, node->weight);
 		print_edges(node->edg);
 		node = node->next;
 	}
@@ -456,8 +457,12 @@ void	breadth_first_search(t_node *node, t_ant *ant)
 	t_nlst	*edg_lst;
 	char	*name;
 	int		i;
+	int		max_weid;
+	int		weight;
 
 	i = 0;
+	weight = 0;
+	max_weid = 0;
 	insert(ant->que, ant->name_start);
 	while (!isempty_queue(ant->que))
 	{
@@ -468,25 +473,21 @@ void	breadth_first_search(t_node *node, t_ant *ant)
 		{
 			ft_printf("Finish %s\n", name);
 			ant->lvl = cur_node->level;
-			//ft_printf("Cheack short way %d\n", cheack_short_path(node, ant));
-			short_ways(node, ant);
-			//short_ways(node, ant);
-			//ft_printf("Cheack short way %d\n", cheack_short_path(node, ant));
-			//cheack_short_way(ant);
-			//solution(ant);
-			solution(ant);
-			//ant->ways = ant->ways->next;
-			//cheack_short_way(ant);
-			//solution(ant);
 			return ;
 		}
 		edg_lst = cur_node->edg;
 		i = cur_node->level;
+		weight = cur_node->weight;
 		cur_node->mark_bfs = 1;
 		while (edg_lst != NULL)
 		{
 			cur_node = search_node(node, edg_lst->name_edg);
-			//cur_node->level = i;
+			cur_node->weight += weight;
+			if (cur_node->weight > max_weid)
+			{
+				max_weid = cur_node->weight;
+				ft_strcpy(ant->nmax_weid, cur_node->name);
+			}
 			if (cur_node->mark_bfs == 0)
 			{
 				insert(ant->que, edg_lst->name_edg);
@@ -674,7 +675,6 @@ void	admission_name_start(t_ant *ant)
 		free(nlst);
 		ways = ways->next;
 	}
-
 }
 
 /*
@@ -717,30 +717,18 @@ void	solution(t_ant *ant)
 	cur_ant = 1;
 	i = 0;
 	admission_name_start(ant);
-	//print_edges(ant->ways->way);
 	ft_printf("count_ant %d\n", ant->count_ant);
 	ft_printf("count_ways %d\n", ant->count_ways);
 	que = init_queue();
-	//nlst = ant->ways->way;
-	//if (!nlst)
-	//	sys_err("Not solution\n");
-	//lst_len = ft_lstlen(ant->ways->way) - 1;
 	lst_len = ant->ways->len_way;
 	ft_printf("Len lst  %d\n", lst_len);
-	//nlst = nlst->next;
 	insert_queue(que, ant);
-	//insert_front(que, nlst->name_edg);
 	while (i < ant->ways->len_way + (ant->count_ant / ant->count_ways) - 1)
 	{
 		//ft_putendl("Hello");
 		print_ant_room(que->first, ant->count_ways * lst_len, ant->count_ways);
-		//ft_putendl("Hello");
-		//nlst = nlst->next;
-		//if (nlst == NULL)
-			//nlst = ant->ways->way->next;
 		if (cur_ant < lst_len && cur_ant < ant->count_ant / ant->count_ways)
 		{
-			//ft_putendl("Hello1");
 			insert_queue(que, ant);
 			//insert_front(que, nlst->name_edg);
 			cur_ant++;
@@ -748,8 +736,11 @@ void	solution(t_ant *ant)
 		else if (cur_ant <= lst_len && lst_len > ant->count_ant / ant->count_ways)
 		{
 			//ft_putendl("Hello2");
-			remove_last(que, ant->count_ways);
+			remove_first(que, ant->count_ways);
+			//remove_last(que, ant->count_ways);
 			insert_queue(que, ant);
+			remove_last(que, ant->count_ways);
+			//break ;
 			//insert_front(que, nlst->name_edg);
 		}
 		if(i >= lst_len - 1 && i >= ant->count_ant / ant->count_ways - 1 &&
@@ -783,6 +774,106 @@ void	cheack_short_way(t_ant *ant)
 */
 
 /*
+** Defines the weight of the node.
+*/
+
+void	weight_node(t_node *node)
+{
+	t_node	*iter;
+
+	iter = node;
+	while (iter != NULL)
+	{
+		iter->weight = ft_lstlen(iter->edg);
+		iter = iter->next;
+	}
+}
+
+/*
+** Check name in short list.
+*/
+
+int		check_name_short_way(char *name, t_ways *ways)
+{
+	t_ways	*iter;	
+	t_nlst	*nlst;
+
+	iter = ways;
+	while (iter != NULL)
+	{
+		nlst = iter->way;			
+		while (nlst != NULL)
+		{
+			if (!ft_strcmp(name, nlst->name_edg))
+				return (1);
+			nlst = nlst->next;
+		}
+		iter = iter->next;
+	}
+	return (0);
+}	
+
+/*
+** Remove an edge from the list..
+*/
+
+void	delete_name_list(char *name, t_nlst *nlst)
+{
+	t_nlst	*iter;
+	t_nlst	*pre;
+
+	pre = nlst;
+	iter = nlst->next;
+	if (!ft_strcmp(name, nlst->name_edg))
+	{
+		nlst = nlst->next;
+		ft_printf("Delete1 %s\n", pre->name_edg);
+		free(pre);	
+		print_edges(nlst);
+		return ;
+	}
+	while (iter != NULL)
+	{
+		if (!ft_strcmp(name, iter->name_edg))
+		{
+			pre->next  = iter->next;	
+			ft_printf("Delete2 %s\n", iter->name_edg);
+			free(iter);
+			print_edges(nlst);
+			return ;
+		}
+		pre = pre->next;
+		iter = iter->next;
+	}
+}
+
+/*
+** Remove an edge from the list..
+*/
+
+void	remove_edge(t_node *node, t_ant *ant)
+{
+	t_node	*max_node;
+	t_node	*par_node;
+	t_nlst	*nlst;
+
+	max_node = search_node(node, ant->nmax_weid);
+	nlst = max_node->edg;
+	while (nlst != NULL)
+	{
+		par_node = search_node(node, nlst->name_edg);
+		if (par_node->level == max_node->level - 1 &&
+				check_name_short_way(nlst->name_edg, ant->ways))
+		{
+			delete_name_list(max_node->name, par_node->edg);
+			delete_name_list(par_node->name, max_node->edg);
+		}
+		//	ft_printf("?????????????????????????????????Yes!!!!!!!!!!!!!!!\n");
+		nlst = nlst->next;
+	}
+}
+
+/*
 ** Read map.
 */
 
@@ -809,8 +900,13 @@ void	read_map(void)
 		ft_strdel(&line);
 	}
 	//print_list(node);
+	weight_node(node);
 	breadth_first_search(node, ant);
-	//solution(ant);
+	short_ways(node, ant);
+	//ft_printf("!!!!!!!!!!!!!!!!!!!!!!Name max weidht %s\n", ant->nmax_weid);
+	remove_edge(node, ant);	
+	print_node(node);
+	solution(ant);
 }
 
 int		main(void)

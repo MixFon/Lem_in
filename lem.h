@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:30:49 by widraugr          #+#    #+#             */
-/*   Updated: 2019/05/16 15:29:22 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/05/31 16:38:31 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ typedef struct		s_node
 	short int		mark_bfs;
 	short int		dfs_mark;
 	int				level;
+	int				weight;
 	struct s_node	*next;
 	t_nlst			*edg;
 }					t_node;
@@ -84,6 +85,7 @@ typedef struct		s_ant
 	t_ways			*ways;
 	char			name_start[NSIZE];
 	char			name_end[NSIZE];
+	char			nmax_weid[NSIZE];
 	int				lvl;
 	int				count_ant;
 	int				count_ways;
