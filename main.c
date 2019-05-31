@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:18:25 by widraugr          #+#    #+#             */
-/*   Updated: 2019/05/31 16:38:29 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/05/31 18:09:15 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -829,7 +829,6 @@ void	delete_name_list(char *name, t_nlst *nlst)
 		nlst = nlst->next;
 		ft_printf("Delete1 %s\n", pre->name_edg);
 		free(pre);	
-		print_edges(nlst);
 		return ;
 	}
 	while (iter != NULL)
@@ -839,7 +838,6 @@ void	delete_name_list(char *name, t_nlst *nlst)
 			pre->next  = iter->next;	
 			ft_printf("Delete2 %s\n", iter->name_edg);
 			free(iter);
-			print_edges(nlst);
 			return ;
 		}
 		pre = pre->next;
@@ -868,8 +866,26 @@ void	remove_edge(t_node *node, t_ant *ant)
 			delete_name_list(max_node->name, par_node->edg);
 			delete_name_list(par_node->name, max_node->edg);
 		}
-		//	ft_printf("?????????????????????????????????Yes!!!!!!!!!!!!!!!\n");
 		nlst = nlst->next;
+	}
+}
+
+/*
+** Insert bfs to zero.
+*/
+
+void	zeroing_bfs(t_node *node)
+{
+	t_node *cur_node;
+
+	cur_node = node;
+	while (cur_node != NULL)
+	{
+		cur_node->mark_bfs = 0;
+		cur_node->dfs_mark = 0;
+		cur_node->level = 0;
+		cur_node->weight = 0;
+		cur_node = cur_node->next;
 	}
 }
 
@@ -904,8 +920,15 @@ void	read_map(void)
 	breadth_first_search(node, ant);
 	short_ways(node, ant);
 	//ft_printf("!!!!!!!!!!!!!!!!!!!!!!Name max weidht %s\n", ant->nmax_weid);
-	remove_edge(node, ant);	
 	print_node(node);
+	/*
+	remove_edge(node, ant);	
+	zeroing_bfs(node);
+	weight_node(node);
+	breadth_first_search(node, ant);
+	short_ways(node, ant);
+	print_node(node);
+	*/
 	solution(ant);
 }
 
