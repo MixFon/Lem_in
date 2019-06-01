@@ -404,6 +404,7 @@ t_node	*add_node(t_node *node, t_ant *ant, char **line)
 
 /*
 ** Cheack of a short path.
+** Проверяет есть ли еще один котороткий путь. 
 */
 
 int		cheack_short_path(t_node *node, t_ant *ant)
@@ -427,6 +428,7 @@ int		cheack_short_path(t_node *node, t_ant *ant)
 
 /*
 ** Add new list of way.
+** Пока есть короткий путь, создаем новый лист с именами пути. 
 */
 
 void	short_ways(t_node *node, t_ant *ant)
@@ -760,20 +762,6 @@ void	solution(t_ant *ant)
 }
 
 /*
-** Cheack short way.
-*/
-/*
-void	cheack_short_way(t_ant *ant)
-{
-	int	len;
-
-	len = ft_lstlen(ant->ways->way);
-	if (ant->count_ant <= len)
-		solution(ant);
-}
-*/
-
-/*
 ** Defines the weight of the node.
 */
 
@@ -791,6 +779,7 @@ void	weight_node(t_node *node)
 
 /*
 ** Check name in short list.
+** Поиск имени в коротком пути, есть оно есть удаляем.
 */
 
 int		check_name_short_way(char *name, t_ways *ways)
@@ -815,6 +804,7 @@ int		check_name_short_way(char *name, t_ways *ways)
 
 /*
 ** Remove an edge from the list..
+** Удоляет один лист  из списка соседей.
 */
 
 void	delete_name_list(char *name, t_nlst *nlst)
@@ -827,7 +817,7 @@ void	delete_name_list(char *name, t_nlst *nlst)
 	if (!ft_strcmp(name, nlst->name_edg))
 	{
 		nlst = nlst->next;
-		ft_printf("Delete1 %s\n", pre->name_edg);
+		ft_printf("Delete1 %s = %s\n", pre->name_edg, name);
 		free(pre);	
 		return ;
 	}
@@ -836,7 +826,7 @@ void	delete_name_list(char *name, t_nlst *nlst)
 		if (!ft_strcmp(name, iter->name_edg))
 		{
 			pre->next  = iter->next;	
-			ft_printf("Delete2 %s\n", iter->name_edg);
+			ft_printf("Delete1 %s = %s\n", pre->name_edg, name);
 			free(iter);
 			return ;
 		}
@@ -871,6 +861,36 @@ void	remove_edge(t_node *node, t_ant *ant)
 }
 
 /*
+** Delete and free ways.
+*/
+
+void	delete_ways(t_ant *ant)
+{
+	t_ways	*ways;
+	t_ways	*pre_ways;
+	t_nlst	*way;
+	t_nlst	*pre_way;
+
+	ways = ant->ways;
+	ant->lvl = 0;
+	ant->count_ways = 0;
+	while (ways != NULL)
+	{
+		way = ways->way;
+		while (way != NULL)
+		{
+			pre_way = way;
+			way = way->next;
+			free(pre_way);
+		}
+		pre_ways = ways;
+		ways = ways->next;
+		free(pre_ways);
+	}
+	ant->ways = NULL;
+}
+
+/*
 ** Insert bfs to zero.
 */
 
@@ -887,6 +907,26 @@ void	zeroing_bfs(t_node *node)
 		cur_node->weight = 0;
 		cur_node = cur_node->next;
 	}
+}
+
+/*
+** Проверяет наличие подходящего пути.
+*/
+
+int		choice_way(t_ant *ant)
+{
+	int		sum_room;
+	t_ways	*ways;
+	
+	sum_room = 0;
+	ways = ant->ways;
+	while (ways != NULL)
+	{
+		sum_room += ways->len_way;
+		ways = ways->next;
+	}
+	ft_printf("!!!!!!!!!!!!!!!!!!!!!!sum rooms %d\n", sum_room);
+	return (0);
 }
 
 /*
@@ -919,16 +959,17 @@ void	read_map(void)
 	weight_node(node);
 	breadth_first_search(node, ant);
 	short_ways(node, ant);
-	//ft_printf("!!!!!!!!!!!!!!!!!!!!!!Name max weidht %s\n", ant->nmax_weid);
 	print_node(node);
-	/*
+
 	remove_edge(node, ant);	
 	zeroing_bfs(node);
+	delete_ways(ant);
+
 	weight_node(node);
 	breadth_first_search(node, ant);
 	short_ways(node, ant);
 	print_node(node);
-	*/
+	choice_way(ant);
 	solution(ant);
 }
 
