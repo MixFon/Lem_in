@@ -142,8 +142,8 @@ void	print_node(t_node *node)
 {
 	while (node)
 	{
-		ft_printf("name = %s, x = %d, y = %d level  = %d weight = %d\n",
-			node->name, node->coor_x, node->coor_y, node->level, node->weight);
+		ft_printf("name = %s,    level  = %d weight = %d\n",
+			node->name, node->level, node->weight);
 		print_edges(node->edg);
 		node = node->next;
 	}
@@ -492,6 +492,7 @@ void	breadth_first_search(t_node *node, t_ant *ant)
 			}
 			if (cur_node->mark_bfs == 0)
 			{
+			//	cur_node->weight += weight;
 				insert(ant->que, edg_lst->name_edg);
 				cur_node->mark_bfs = 1;
 				//cur_node->level++;
@@ -579,7 +580,6 @@ t_ways	*create_short_way(t_node *node, t_ant *ant)
 			}
 			lst = lst->next;
 		}
-		//print_stack(ant->stack->first);
 	}
 	return (NULL);
 }
@@ -772,7 +772,7 @@ void	weight_node(t_node *node)
 	iter = node;
 	while (iter != NULL)
 	{
-		iter->weight = ft_lstlen(iter->edg);
+		iter->weight = 1; //ft_lstlen(iter->edg);
 		iter = iter->next;
 	}
 }
@@ -925,7 +925,8 @@ int		choice_way(t_ant *ant)
 		sum_room += ways->len_way;
 		ways = ways->next;
 	}
-	ft_printf("!!!!!!!!!!!!!!!!!!!!!!sum rooms %d\n", sum_room);
+	if (ant->count_ant <= sum_room)
+		return (1);
 	return (0);
 }
 
@@ -958,9 +959,17 @@ void	read_map(void)
 	//print_list(node);
 	weight_node(node);
 	breadth_first_search(node, ant);
-	short_ways(node, ant);
 	print_node(node);
-
+	short_ways(node, ant);
+	ft_putendl("SOLUTION");
+	
+	if (choice_way(ant))
+	{
+		solution(ant);
+		ft_putendl("solution");
+		return ;
+	}
+	//return ;
 	remove_edge(node, ant);	
 	zeroing_bfs(node);
 	delete_ways(ant);
