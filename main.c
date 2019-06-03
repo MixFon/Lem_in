@@ -419,8 +419,12 @@ int		cheack_short_path(t_node *node, t_ant *ant)
 	while (iter)
 	{
 		cur_node = search_node(node, iter->name_edg);
-		if (cur_node->level == s_lvl - 1 && cur_node->dfs_mark == 0)
+		if (/*cur_node->level <= s_lvl - 1 &&*/ cur_node->dfs_mark == 0)
+		{
+			ft_printf("cur_node=cur_node->dfs_mark == 0\n");
+			ft_printf("!!!cur_node->name %s\n",cur_node->name );
 			return (1);
+		}
 		iter = iter->next;
 	}
 	return (0);
@@ -428,7 +432,9 @@ int		cheack_short_path(t_node *node, t_ant *ant)
 
 /*
 ** Add new list of way.
-** Пока есть короткий путь, создаем новый лист с именами пути. 
+** Пока есть короткие пути, создаем новый лист с именами пути. 
+** После создания коротких путей добавляем в конец имя конца пути.
+** Особеность реализации.
 */
 
 void	short_ways(t_node *node, t_ant *ant)
@@ -443,12 +449,14 @@ void	short_ways(t_node *node, t_ant *ant)
 			ant->count_ways++;
 			continue ;
 		}
-		iter = create_short_way(node, ant);
+		if(!(iter = create_way(node, ant)))
+			continue ;
 		ant->count_ways++;
 		iter->next = ant->ways->next;
 		ant->ways->next = iter;
 	}
 }
+
 /*
 ** Breadth-first search.
 */
@@ -505,13 +513,13 @@ void	breadth_first_search(t_node *node, t_ant *ant)
 	}
 }
 
-void	add_new_nlst(t_nlst **sol, char *name)
+void	add_new_nlst(t_nlst **way, char *name)
 {
 	t_nlst	*iter;
 
 	iter = creat_new_lst(name);
-	iter->next = *sol;
-	*sol = iter;
+	iter->next = *way;
+	*way = iter;
 }
 
 /*
@@ -532,8 +540,22 @@ t_ways	*create_new_way(void)
 }
 
 /*
-** Depth-first search.
-** Create list short path.
+** Delete one list in way.
+*/
+
+void	delete_list(t_nlst **way)
+{
+	t_nlst	*iter;
+
+	iter = *way;
+	if (!iter)
+		return ;
+	*way = (*way)->next;
+	iter->next = NULL;
+	free(iter);
+}
+/*
+** Create list only short way.
 */
 
 t_ways	*create_short_way(t_node *node, t_ant *ant)
@@ -543,17 +565,18 @@ t_ways	*create_short_way(t_node *node, t_ant *ant)
 	t_ways	*iter;
 	char	*name;
 	int		s_lvl;
+	int		i = 0;
 
 	iter = create_new_way();
 	iter->way = creat_new_lst(ant->name_end);
-	ft_printf("Name start stack '%s'\n", ant->name_end);
+	ft_printf("\nShort Way! Name start stack '%s'\n", ant->name_end);
 	while (iter->way != NULL)
 	{
 		name = iter->way->name_edg;
 		cur_node = search_node(node, name);
 		cur_node->dfs_mark = 1;
 		s_lvl = cur_node->level;
-		ft_printf("%s level %d\n",name, s_lvl);
+		ft_printf("%s level %d sum = %d\n", name, s_lvl, ++i);
 		lst = cur_node->edg;
 		while (lst)
 		{
@@ -569,16 +592,103 @@ t_ways	*create_short_way(t_node *node, t_ant *ant)
 				print_edges(iter->way);
 				cur_node->dfs_mark = 1;
 			//	ant->ways = iter;
-				return (iter) ;
+				return (iter);
 			}
 			else if (cur_node->level == s_lvl - 1 && cur_node->dfs_mark == 0)
 			{
 				add_new_nlst(&iter->way, name);
 				iter->len_way++;
+				cur_node->dfs_mark = 1;
 				ft_printf("Push to list way %s\n", name);
 				break ;
 			}
+			/*
+			else if (cur_node->level <= s_lvl && cur_node->dfs_mark == 0)
+			{
+				add_new_nlst(&iter->way, name);
+				iter->len_way++;
+				cur_node->dfs_mark = 1;
+				ft_printf("Push to list way1 %s\n", name);
+				break ;
+			}
+			else	//if (ft_strcmp(iter->way->name_edg, ant->name_end))
+			{
+				ft_printf("Delete list way %s\n", iter->way->name_edg);
+				cur_node->dfs_mark = 1;
+				delete_list(&iter->way);
+			}
+			*/
 			lst = lst->next;
+		}
+	}
+	return (NULL);
+}
+
+/*
+** Depth-first search.
+** Create list short path.
+*/
+
+t_ways	*create_way(t_node *node, t_ant *ant)
+{
+	t_node	*cur_node;
+	t_nlst	*lst;
+	t_ways	*iter;
+	char	*name;
+	int		s_lvl;
+	int		i = 0;
+
+	iter = create_new_way();
+	iter->way = creat_new_lst(ant->name_end);
+	ft_printf("\nName start stack '%s'\n", ant->name_end);
+	while (iter->way != NULL /*|| cheack_short_path(node, ant)*/)
+	{
+		name = iter->way->name_edg;
+		cur_node = search_node(node, name);
+		cur_node->dfs_mark = 1;
+		s_lvl = cur_node->level;
+		ft_printf("%s level %d sum = %d\n", name, s_lvl, ++i);
+		lst = cur_node->edg;
+		while (lst)
+		{
+			name = lst->name_edg;
+			cur_node = search_node(node, name);
+			ft_printf("cha %s level %d\n", name, cur_node->level);
+			if (!ft_strcmp(name, ant->name_start))
+			{
+				ft_printf("Find! %s\n", name);
+				ft_printf("Path\n");
+				ft_printf("len_way %d\n", iter->len_way);
+				add_new_nlst(&iter->way, name);
+				print_edges(iter->way);
+				cur_node->dfs_mark = 1;
+			//	ant->ways = iter;
+				return (iter);
+			}
+			else if (cur_node->level == s_lvl - 1 && cur_node->dfs_mark == 0)
+			{
+				add_new_nlst(&iter->way, name);
+				iter->len_way++;
+				cur_node->dfs_mark = 1;
+				ft_printf("Push to list way %s\n", name);
+				break ;
+			}
+			else if (/*cur_node->level <= s_lvl &&*/ cur_node->dfs_mark == 0)
+			{
+				add_new_nlst(&iter->way, name);
+				iter->len_way++;
+				cur_node->dfs_mark = 1;
+				ft_printf("Push to list way1 %s\n", name);
+				break ;
+			}
+			lst = lst->next;
+		}
+		if (lst == NULL)	//if (ft_strcmp(iter->way->name_edg, ant->name_end))
+		{
+			ft_printf("Delete list way %s\n", iter->way->name_edg);
+			iter->len_way--;
+			cur_node->dfs_mark = 1;
+			delete_list(&iter->way);
 		}
 	}
 	return (NULL);
@@ -600,6 +710,7 @@ t_ant	*init_ant(void)
 	new->ways = NULL;
 	new->lvl = 0;
 	new->count_ant = 0;
+	new->max_count_way = 0;
 	new->count_ways = 0;
 	return (new);
 }
@@ -719,8 +830,6 @@ void	solution(t_ant *ant)
 	cur_ant = 1;
 	i = 0;
 	admission_name_start(ant);
-	ft_printf("count_ant %d\n", ant->count_ant);
-	ft_printf("count_ways %d\n", ant->count_ways);
 	que = init_queue();
 	lst_len = ant->ways->len_way;
 	ft_printf("Len lst  %d\n", lst_len);
@@ -930,6 +1039,41 @@ int		choice_way(t_ant *ant)
 	return (0);
 }
 
+void	print_ways(t_ant *ant)
+{
+	t_ways	*ways;
+	int		i = 0;
+
+	ways = ant->ways;
+	while (ways)
+	{
+		ft_printf("\nPath %d:\n", ++i);
+		print_edges(ways->way);
+		ways = ways->next;
+	}
+}
+
+/*
+** Print count steps.
+*/
+
+void	print_steps(t_ant *ant)
+{
+	t_ways *ways;
+
+	ways = ant->ways;
+	while (ways)
+	{
+		if (ant->max_count_way < ways->len_way)
+			ant->max_count_way = ways->len_way;
+		ways = ways->next;
+	}
+	ft_printf("count_ant %d\n", ant->count_ant);
+	ft_printf("count_ways %d\n", ant->count_ways);
+	ft_printf("max_count_way %d\n", ant->max_count_way);
+ft_printf("Steps %d\n", ant->count_ant / ant->count_ways + ant->max_count_way - 1);
+}
+
 /*
 ** Read map.
 */
@@ -961,8 +1105,11 @@ void	read_map(void)
 	breadth_first_search(node, ant);
 	print_node(node);
 	short_ways(node, ant);
+	print_ways(ant);
+	print_steps(ant);
 	ft_putendl("SOLUTION");
 	
+	/*
 	if (choice_way(ant))
 	{
 		solution(ant);
@@ -970,7 +1117,6 @@ void	read_map(void)
 		return ;
 	}
 	//return ;
-	/*
 	remove_edge(node, ant);	
 	zeroing_bfs(node);
 	delete_ways(ant);

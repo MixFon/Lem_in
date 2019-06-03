@@ -76,10 +76,12 @@ typedef struct		s_ant
 	char			nmax_weid[NSIZE];
 	int				lvl;
 	int				count_ant;
+	int				max_count_way;
 	int				count_ways;
 }					t_ant;
 
 void	depth_first_search(t_node *node, t_ant *ant);
+t_ways	*create_way(t_node *node, t_ant *ant);
 t_ways	*create_short_way(t_node *node, t_ant *ant);
 void	cheack_short_way(t_ant *ant);
 void	solution(t_ant *ant);
