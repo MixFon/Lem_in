@@ -515,7 +515,7 @@ void	add_new_nlst(t_nlst **sol, char *name)
 }
 
 /*
-** Depth-first search.
+** Create new way for short path.
 ** Create list short path.
 */
 
@@ -970,6 +970,7 @@ void	read_map(void)
 		return ;
 	}
 	//return ;
+	/*
 	remove_edge(node, ant);	
 	zeroing_bfs(node);
 	delete_ways(ant);
@@ -979,6 +980,7 @@ void	read_map(void)
 	short_ways(node, ant);
 	print_node(node);
 	choice_way(ant);
+	*/
 	solution(ant);
 }
 
