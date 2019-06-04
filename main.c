@@ -916,16 +916,16 @@ int		check_name_short_way(char *name, t_ways *ways)
 ** Удоляет один лист  из списка соседей.
 */
 
-void	delete_name_list(char *name, t_nlst *nlst)
+void	delete_name_list(char *name, t_nlst **nlst)
 {
 	t_nlst	*iter;
 	t_nlst	*pre;
 
-	pre = nlst;
-	iter = nlst->next;
-	if (!ft_strcmp(name, nlst->name_edg))
+	pre = *nlst;
+	iter = (*nlst)->next;
+	if (!ft_strcmp(name, (*nlst)->name_edg))
 	{
-		nlst = nlst->next;
+		*nlst = (*nlst)->next;
 		ft_printf("Delete1 %s = %s\n", pre->name_edg, name);
 		free(pre);	
 		return ;
@@ -934,8 +934,8 @@ void	delete_name_list(char *name, t_nlst *nlst)
 	{
 		if (!ft_strcmp(name, iter->name_edg))
 		{
-			pre->next  = iter->next;	
-			ft_printf("Delete1 %s = %s\n", pre->name_edg, name);
+			pre->next = iter->next;	
+			ft_printf("Delete2 %s = %s\n", iter->name_edg, name);
 			free(iter);
 			return ;
 		}
@@ -945,9 +945,57 @@ void	delete_name_list(char *name, t_nlst *nlst)
 }
 
 /*
-** Remove an edge from the list..
+** Определение первого и второго по весу узлов.
+** Во второе сравнение не заходит. Возможно проверка не нужна.
 */
 
+void	define_fir_sec_wei(t_node *node, t_ant *ant)
+{
+	t_nlst	*way;
+	t_node	*cur_node;
+	int		fir;
+	int		sec;
+
+	fir = 0;
+	sec = 0;
+	way = ant->ways->way;
+	while (way != NULL)
+	{
+		cur_node = search_node(node, way->name_edg);
+		if (cur_node->weight > fir && ft_strcmp(way->name_edg, ant->name_end))
+		{
+			sec = fir;
+			fir = cur_node->weight;
+			ft_strcpy(ant->sec_wei, ant->fir_wei);
+			ft_strcpy(ant->fir_wei, cur_node->name);
+		}
+		else if (cur_node->weight > sec && ft_strcmp(way->name_edg, ant->name_end))
+		{
+			sec = cur_node->weight;
+			ft_strcpy(ant->sec_wei, cur_node->name);
+		}
+		way = way->next;
+	}
+	ft_printf("fir = %s wei = %d; sec = %s wei = %d\n",
+			ant->fir_wei, fir, ant->sec_wei, sec);
+}
+
+/*
+** Remove an edge from the list.
+*/
+void	remove_edge(t_node *node, t_ant *ant)
+{
+	t_node	*fir_node;
+	t_node	*sec_node;
+
+	ft_putendl(ant->fir_wei);
+	ft_putendl(ant->sec_wei);
+	fir_node = search_node(node, ant->fir_wei);
+	sec_node = search_node(node, ant->sec_wei);
+	delete_name_list(fir_node->name, &sec_node->edg);
+	delete_name_list(sec_node->name, &fir_node->edg);
+}
+/*
 void	remove_edge(t_node *node, t_ant *ant)
 {
 	t_node	*max_node;
@@ -968,7 +1016,7 @@ void	remove_edge(t_node *node, t_ant *ant)
 		nlst = nlst->next;
 	}
 }
-
+*/
 /*
 ** Delete and free ways.
 */
@@ -1105,6 +1153,9 @@ void	read_map(void)
 	breadth_first_search(node, ant);
 	print_node(node);
 	short_ways(node, ant);
+	define_fir_sec_wei(node, ant);
+	remove_edge(node, ant);	
+	print_node(node);
 	print_ways(ant);
 	print_steps(ant);
 	ft_putendl("SOLUTION");
@@ -1119,12 +1170,12 @@ void	read_map(void)
 	//return ;
 	remove_edge(node, ant);	
 	zeroing_bfs(node);
-	delete_ways(ant);
 
 	weight_node(node);
 	breadth_first_search(node, ant);
 	short_ways(node, ant);
 	print_node(node);
+	delete_ways(ant);
 	choice_way(ant);
 	*/
 	solution(ant);

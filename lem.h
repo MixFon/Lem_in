@@ -74,6 +74,8 @@ typedef struct		s_ant
 	char			name_start[NSIZE];
 	char			name_end[NSIZE];
 	char			nmax_weid[NSIZE];
+	char			fir_wei[NSIZE];
+	char			sec_wei[NSIZE];
 	int				lvl;
 	int				count_ant;
 	int				max_count_way;
