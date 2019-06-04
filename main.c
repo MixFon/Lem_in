@@ -332,15 +332,15 @@ void	create_edges(t_node *node, char *line)
 {
 	size_t	len;
 	char	*fir_name;
-	t_node	*temp;
+	t_node	*cur_node;
 
 	len = ft_strcl(line, '-');
 	fir_name = ft_strnew(len + 1);
 	fir_name = ft_strncpy(fir_name, line, len);
-	temp = search_node(node, fir_name);
-	add_new_edges(&temp->edg, (line + len + 1));
-	temp = search_node(node, line + len + 1);
-	add_new_edges(&temp->edg, fir_name);
+	cur_node = search_node(node, fir_name);
+	add_new_edges(&cur_node->edg, (line + len + 1));
+	cur_node = search_node(node, line + len + 1);
+	add_new_edges(&cur_node->edg, fir_name);
 	//ft_printf("fir_name = %s\n", fir->name);
 	//ft_printf("sec_name = %s\n", sec->name);
 	ft_strdel(&fir_name);
@@ -437,7 +437,7 @@ int		cheack_short_path(t_node *node, t_ant *ant)
 ** Особеность реализации.
 */
 
-void	short_ways(t_node *node, t_ant *ant)
+int		short_ways(t_node *node, t_ant *ant)
 {
 	t_ways *iter;
 
@@ -445,7 +445,14 @@ void	short_ways(t_node *node, t_ant *ant)
 	{
 		if (ant->ways == NULL)
 		{
-			ant->ways = create_short_way(node, ant);
+			if(!(ant->ways = create_short_way(node, ant)))
+			{
+				ft_putendl("Heeeeeelllllllo");
+				ant->count_ways++;
+				ant->pre_steps = 1;
+				ant->bl = 0;
+				return (1);
+			}
 			ant->count_ways++;
 			continue ;
 		}
@@ -455,6 +462,7 @@ void	short_ways(t_node *node, t_ant *ant)
 		iter->next = ant->ways->next;
 		ant->ways->next = iter;
 	}
+	return (0);
 }
 
 /*
@@ -474,6 +482,9 @@ void	breadth_first_search(t_node *node, t_ant *ant)
 	weight = 0;
 	max_weid = 0;
 	insert(ant->que, ant->name_start);
+	ft_printf("Name start {%s}\n", ant->name_start);
+	ft_putendl("Queue:");
+	print_edges(ant->que->first);
 	while (!isempty_queue(ant->que))
 	{
 		name = remove_first(ant->que, 1);
@@ -578,7 +589,7 @@ t_ways	*create_short_way(t_node *node, t_ant *ant)
 		s_lvl = cur_node->level;
 		ft_printf("%s level %d sum = %d\n", name, s_lvl, ++i);
 		lst = cur_node->edg;
-		while (lst)
+		while (lst != NULL)
 		{
 			name = lst->name_edg;
 			cur_node = search_node(node, name);
@@ -620,7 +631,16 @@ t_ways	*create_short_way(t_node *node, t_ant *ant)
 			*/
 			lst = lst->next;
 		}
+		if (lst == NULL)	//if (ft_strcmp(iter->way->name_edg, ant->name_end))
+		{
+			ft_putendl("!!!!!!!!!!!!!!!!!!!!!!Helllo!!!!!!!!!!!!!!!!!!!!!!!!!");
+			ft_printf("Delete list way %s\n", iter->way->name_edg);
+			iter->len_way--;
+			cur_node->dfs_mark = 1;
+			delete_list(&iter->way);
+		}
 	}
+	ft_putendl("??????????????????????Helllo?????????????????????????");
 	return (NULL);
 }
 
@@ -710,6 +730,8 @@ t_ant	*init_ant(void)
 	new->ways = NULL;
 	new->lvl = 0;
 	new->count_ant = 0;
+	new->pre_steps = 0;
+	new->bl = 0;
 	new->max_count_way = 0;
 	new->count_ways = 0;
 	return (new);
@@ -872,6 +894,7 @@ void	solution(t_ant *ant)
 
 /*
 ** Defines the weight of the node.
+** Поправить, сделать при создании узла.
 */
 
 void	weight_node(t_node *node)
@@ -916,7 +939,7 @@ int		check_name_short_way(char *name, t_ways *ways)
 ** Удоляет один лист  из списка соседей.
 */
 
-void	delete_name_list(char *name, t_nlst **nlst)
+int	delete_name_list(char *name, t_nlst **nlst)
 {
 	t_nlst	*iter;
 	t_nlst	*pre;
@@ -928,7 +951,7 @@ void	delete_name_list(char *name, t_nlst **nlst)
 		*nlst = (*nlst)->next;
 		ft_printf("Delete1 %s = %s\n", pre->name_edg, name);
 		free(pre);	
-		return ;
+		return (0);
 	}
 	while (iter != NULL)
 	{
@@ -937,11 +960,13 @@ void	delete_name_list(char *name, t_nlst **nlst)
 			pre->next = iter->next;	
 			ft_printf("Delete2 %s = %s\n", iter->name_edg, name);
 			free(iter);
-			return ;
+			return (0);
 		}
 		pre = pre->next;
 		iter = iter->next;
 	}
+	ft_putendl("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+	return (1);
 }
 
 /*
@@ -990,10 +1015,21 @@ void	remove_edge(t_node *node, t_ant *ant)
 
 	ft_putendl(ant->fir_wei);
 	ft_putendl(ant->sec_wei);
+	ft_putendl("Write to reviose");
+	ft_strcpy(ant->pre_firn, ant->fir_wei);
+	ft_strcpy(ant->pre_secn, ant->sec_wei);
 	fir_node = search_node(node, ant->fir_wei);
 	sec_node = search_node(node, ant->sec_wei);
-	delete_name_list(fir_node->name, &sec_node->edg);
-	delete_name_list(sec_node->name, &fir_node->edg);
+	if (delete_name_list(fir_node->name, &sec_node->edg))
+	{
+		ant->bl = 1;
+		ant->pre_steps = 1;
+	}
+	if (delete_name_list(sec_node->name, &fir_node->edg))
+	{
+		ant->bl = 1;
+		ant->pre_steps = 1;
+	}
 }
 /*
 void	remove_edge(t_node *node, t_ant *ant)
@@ -1123,8 +1159,50 @@ ft_printf("Steps %d\n", ant->count_ant / ant->count_ways + ant->max_count_way - 
 }
 
 /*
-** Read map.
+** Проверяет увеличение количества шагов.
 */
+
+int		cheack_step(t_node *node, t_ant *ant)
+{
+	t_node *cur_node;
+
+	if (ant->pre_steps == 0)
+		return (1);
+	ft_printf("cheack_steps!!!\n cur_steps %d pre_steps %d\n",
+			ant->cur_steps, ant->pre_steps);
+	if (ant->cur_steps < ant->pre_steps)
+		return (1);
+	else	if (ant->bl == 0)
+	{
+		ft_putendl("            ant->bl");
+		cur_node = search_node(node, ant->pre_firn);
+		add_new_edges(&cur_node->edg, ant->pre_secn);
+		cur_node = search_node(node, ant->pre_secn);
+		add_new_edges(&cur_node->edg, ant->pre_firn);
+	}
+	return (0);
+}
+
+/*
+** Recolc_stepsad map.
+*/
+
+void	calc_steps(t_ant *ant)
+{
+	t_ways *ways;
+
+	ways = ant->ways;
+	while (ways)
+	{
+		if (ant->max_count_way < ways->len_way)
+			ant->max_count_way = ways->len_way;
+		ways = ways->next;
+	}
+	ant->pre_steps = ant->cur_steps;
+	ant->cur_steps = ant->count_ant / ant->count_ways + ant->max_count_way - 1;
+	ft_printf("Speps now %d\n", ant->cur_steps);
+	ft_printf("Speps pre %d\n", ant->pre_steps);
+}
 
 void	read_map(void)
 {
@@ -1149,17 +1227,40 @@ void	read_map(void)
 		ft_strdel(&line);
 	}
 	//print_list(node);
+	while (cheack_step(node, ant))
+	{
+		weight_node(node);
+		breadth_first_search(node, ant);
+		print_node(node);
+		if(short_ways(node, ant))
+		{
+			ft_putendl("RRRRRRRR");
+			zeroing_bfs(node);
+			delete_ways(ant);
+			continue ;
+		}
+		print_ways(ant);
+		calc_steps(ant);
+		define_fir_sec_wei(node, ant);
+		remove_edge(node, ant);
+		zeroing_bfs(node);
+		delete_ways(ant);
+	}
 	weight_node(node);
 	breadth_first_search(node, ant);
 	print_node(node);
 	short_ways(node, ant);
-	define_fir_sec_wei(node, ant);
-	remove_edge(node, ant);	
-	print_node(node);
+	calc_steps(ant);
+	//define_fir_sec_wei(node, ant);
+	//remove_edge(node, ant);
+	//zeroing_bfs(node);
+	//delete_ways(ant);
+
+	//print_node(node);
 	print_ways(ant);
 	print_steps(ant);
 	ft_putendl("SOLUTION");
-	
+
 	/*
 	if (choice_way(ant))
 	{
@@ -1168,9 +1269,8 @@ void	read_map(void)
 		return ;
 	}
 	//return ;
-	remove_edge(node, ant);	
+	remove_edge(node, ant);
 	zeroing_bfs(node);
-
 	weight_node(node);
 	breadth_first_search(node, ant);
 	short_ways(node, ant);
