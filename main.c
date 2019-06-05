@@ -457,7 +457,7 @@ int		short_ways(t_node *node, t_ant *ant)
 			continue ;
 		}
 		if(!(iter = create_way(node, ant)))
-			continue ;
+			return (0) ;
 		ant->count_ways++;
 		iter->next = ant->ways->next;
 		ant->ways->next = iter;
@@ -679,6 +679,7 @@ t_ways	*create_way(t_node *node, t_ant *ant)
 	char	*name;
 	int		s_lvl;
 	int		i = 0;
+	static int a = 0;
 
 	iter = create_new_way();
 	iter->way = creat_new_lst(ant->name_end);
@@ -691,6 +692,7 @@ t_ways	*create_way(t_node *node, t_ant *ant)
 		s_lvl = cur_node->level;
 		ft_printf("%s level %d sum = %d\n", name, s_lvl, ++i);
 		lst = cur_node->edg;
+		a++;
 		while (lst)
 		{
 			name = lst->name_edg;
@@ -701,6 +703,8 @@ t_ways	*create_way(t_node *node, t_ant *ant)
 				ft_printf("Find! %s\n", name);
 				ft_printf("Path\n");
 				ft_printf("len_way %d\n", iter->len_way);
+				if (a == 1)
+					return (NULL);
 				add_new_nlst(&iter->way, name);
 				print_edges(iter->way);
 				cur_node->dfs_mark = 1;
@@ -912,6 +916,7 @@ void	solution(t_ant *ant)
 		//break ;
 		i++;
 	}
+	exit(0);
 }
 
 /*
@@ -1075,6 +1080,7 @@ void	remove_edge(t_node *node, t_ant *ant)
 	}
 }
 */
+
 /*
 ** Delete and free ways.
 */
@@ -1083,23 +1089,13 @@ void	delete_ways(t_ant *ant)
 {
 	t_ways	*ways;
 	t_ways	*pre_ways;
-	t_nlst	*way;
 
 	ways = ant->ways;
 	ant->lvl = 0;
 	ant->count_ways = 0;
 	while (ways != NULL)
 	{
-		way = ways->way;
 		delete_all_list(&ways->way);
-		/*
-		while (way != NULL)
-		{
-			pre_way = way;
-			way = way->next;
-			free(pre_way);
-		}
-		*/
 		pre_ways = ways;
 		ways = ways->next;
 		free(pre_ways);
@@ -1272,6 +1268,30 @@ int		calc_steps(t_ant *ant)
 		return (0);
 }
 
+void	special_case(t_ant *ant)
+{
+	t_ways *ways;
+
+	ways = ant->ways;
+	if (ways->len_way == 1)
+	{
+		ft_putendl("111");
+		ant->ways->next = NULL;
+		ant->count_ways = 1;
+		ant->ways = ways;
+		solution(ant);
+	}
+	if (ways->len_way >= ant->count_ant)
+	{
+		ft_putendl("222");
+		ant->ways->next = NULL;
+		//delete_ways_exept_one(ant);
+		ant->count_ways = 1;
+		print_ways(ant);
+		solution(ant);
+	}
+}
+
 void	read_map(void)
 {
 	char	*line;
@@ -1314,6 +1334,7 @@ void	read_map(void)
 			delete_ways(ant);
 			continue;
 		}
+		special_case(ant);
 		define_fir_sec_wei(node, ant);
 		remove_edge(node, ant);
 		zeroing_bfs(node);
