@@ -745,32 +745,6 @@ t_ant	*init_ant(void)
 	return (new);
 }
 
-/*
-** Print ant in room.
-*/
-
-void	print_ant_room(t_nlst *nlst/* int ant_path, int count_ways*/)
-{
-	t_nlst	*iter;
-	int		ant;
-	//static int	bl = 0;
-	//static int	i = 0;
-
-	ant = 0;
-	iter = nlst;
-	while (iter != NULL)
-	{
-		ft_printf("L%d-%s ", ++ant, iter->name_edg);
-		if (iter == iter->next)
-		{
-			ft_putchar('\n');
-			return ;
-		}
-		iter = iter->next;
-	}
-	ft_putchar('\n');
-}
-
 int		ft_lstlen(t_nlst *nlst)
 {
 	int		i;
@@ -784,6 +758,44 @@ int		ft_lstlen(t_nlst *nlst)
 		iter = iter->next;
 	}
 	return (i);
+}
+
+/*
+** Print ant in room.
+*/
+
+void	print_ant_room(t_ant *ant, t_nlst *nlst)
+{
+	t_nlst	*iter;
+	t_ways	*ways;
+	int		count;
+	static int		a = 0;
+	//static int	bl = 0;
+	//static int	i = 0;
+
+	count = 0;
+	iter = nlst;
+	count = a;
+	while (iter != NULL)
+	{
+		ft_printf("L%d-%s ", ++count, iter->name_edg);
+		if (iter == iter->next)
+		{
+			ft_putchar('\n');
+			return ;
+		}
+		iter = iter->next;
+	}
+	ft_putchar('\n');
+	ways = ant->ways;
+	while (ways != NULL)
+	{
+		//ft_putendl("Hello1");
+		if (ways->len_way < ft_lstlen(nlst))
+			a++;
+	//	ft_printf("a = %d\n", a);
+		ways = ways->next;
+	}
 }
 
 /*
@@ -868,11 +880,11 @@ void	solution(t_ant *ant)
 	while (i < ant->cur_steps)
 	{
 		//ft_putendl("Hello");
-		print_ant_room(que->first);
+		print_ant_room(ant, que->first);
 		if (i <= lst_len)
 		{
+		//	ft_putendl("Hello");
 			insert_queue(que, ant);
-			cur_ant++;
 		}
 		if (i >= ant->cur_steps - ant->max_count_way)
 			cheack_remove(ant, que, i);
