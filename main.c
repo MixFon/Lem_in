@@ -457,6 +457,9 @@ int		short_ways(t_node *node, t_ant *ant)
 		ant->count_ways++;
 		iter->next = ant->ways->next;
 		ant->ways->next = iter;
+		iter->prev = ant->ways;
+		if (iter->next != NULL)
+			iter->next->prev = iter;
 	}
 	return (0);
 }
@@ -564,6 +567,7 @@ t_ways	*create_new_way(void)
 	way->way = NULL;;
 	way->len_way = 1;
 	way->next = NULL;
+	way->prev = NULL;
 	return (way);
 }
 
@@ -745,31 +749,18 @@ t_ant	*init_ant(void)
 ** Print ant in room.
 */
 
-void	print_ant_room(t_nlst *nlst, int ant_path, int count_ways)
+void	print_ant_room(t_nlst *nlst/* int ant_path, int count_ways*/)
 {
 	t_nlst	*iter;
 	int		ant;
-	static int	bl = 0;
-	static int	i = 0;
+	//static int	bl = 0;
+	//static int	i = 0;
 
-	ant = 1;
-	iter = nlst;
-	while (iter)
-	{
-		iter->sum_ant = ant + i;
-		if (ant == ant_path)
-			bl = 1;
-		ant++;
-		if (iter == iter->next)
-			break ;
-		iter = iter->next;
-	}
-	if (bl == 1)
-		i += count_ways;
+	ant = 0;
 	iter = nlst;
 	while (iter != NULL)
 	{
-		ft_printf("L%d-%s ", iter->sum_ant, iter->name_edg);
+		ft_printf("L%d-%s ", ++ant, iter->name_edg);
 		if (iter == iter->next)
 		{
 			ft_putchar('\n');
@@ -826,21 +817,34 @@ void	insert_queue(t_queue *que, t_ant *ant)
 	t_nlst	*nlst;
 	
 	ways = ant->ways;
+	while (ways->next)
+		ways = ways->next;
 	while (ways != NULL)
 	{
 		nlst = ways->way;
 		if (nlst == NULL)
 		{
-			ways = ways->next;
+			ways = ways->prev;
 			continue ;
 		}
 		insert_front(que, nlst->name_edg);
 		ways->way = ways->way->next;
 		free(nlst);
+		ways = ways->prev;
+	}
+}
+void	cheack_remove(t_ant *ant, t_queue *que, int i)
+{
+	t_ways *ways;
+
+	ways = ant->ways;
+	while (ways != NULL)
+	{
+		if (i >= ant->cur_steps - ways->len_way)
+			remove_last(que, 1);
 		ways = ways->next;
 	}
 }
-
 /*
 ** Print solution.
 */
@@ -854,23 +858,25 @@ void	solution(t_ant *ant)
 	int		lst_len;
 
 	//exit(0);
-	cur_ant = 1;
+	cur_ant = 0;
 	i = 0;
 	admission_name_start(ant);
 	que = init_queue();
-	lst_len = ant->ways->len_way;
+	lst_len = ant->max_count_way;
 	ft_printf("Len lst  %d\n", lst_len);
 	insert_queue(que, ant);
-	while (i < ant->ways->len_way + (ant->count_ant / ant->count_ways) - 1)
+	while (i < ant->cur_steps)
 	{
 		//ft_putendl("Hello");
-		print_ant_room(que->first, ant->count_ways * lst_len, ant->count_ways);
-		if (cur_ant < lst_len && cur_ant < ant->count_ant / ant->count_ways)
+		print_ant_room(que->first);
+		if (i <= lst_len)
 		{
 			insert_queue(que, ant);
-			//insert_front(que, nlst->name_edg);
 			cur_ant++;
 		}
+		if (i >= ant->cur_steps - ant->max_count_way)
+			cheack_remove(ant, que, i);
+		/*
 		else if (cur_ant <= lst_len && lst_len > ant->count_ant / ant->count_ways)
 		{
 			//ft_putendl("Hello2");
@@ -893,6 +899,7 @@ void	solution(t_ant *ant)
 			remove_first(que, ant->count_ways);
 		}
 		//break ;
+		*/
 		i++;
 	}
 	exit(0);

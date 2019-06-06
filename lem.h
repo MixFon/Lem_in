@@ -65,6 +65,7 @@ typedef struct		s_ways
 	t_nlst			*way;
 	int				len_way;
 	struct s_ways	*next;
+	struct s_ways	*prev;
 }					t_ways;
 
 typedef struct		s_ant
@@ -92,13 +93,4 @@ t_ways	*create_way(t_node *node, t_ant *ant);
 t_ways	*create_short_way(t_node *node, t_ant *ant);
 void	cheack_short_way(t_ant *ant);
 void	solution(t_ant *ant);
-/*
-** Structure stack.
-** First is left element of list.
-*/
-/*
-typedef struct		s_stack
-{
-	t_nlst			*first;
-}					t_stack;
-*/
+void	print_ways(t_ant *ant);
