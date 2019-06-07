@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:18:25 by widraugr          #+#    #+#             */
-/*   Updated: 2019/06/07 16:51:14 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/06/07 17:11:20 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -967,14 +967,10 @@ void	solution(t_ant *ant)
 	static t_nlst	*temp;
 	t_nlst	pant[ant->count_ant];
 
-	i = 0;
+	i = -1;
 	admission_name_start(ant);
-	while (i < ant->count_ant)
-	{
-	//	ft_printf("i = %d\n", i + 1);
+	while (++i < ant->count_ant)
 		create_print_list(&pant[i], ant, i);
-		i++;
-	}
 	j = 0;
 	while (j <  ant->cur_steps)
 	{
@@ -1316,7 +1312,7 @@ int		calc_steps(t_ant *ant)
 		ways = ways->next;
 	}
 	ant->pre_steps = ant->cur_steps;
-	ant->cur_steps = ant->count_ant / ant->count_ways + ant->max_count_way - 1;
+	ant->cur_steps = ((ant->count_ant - 1) / ant->count_ways) + ant->max_count_way;
 	ft_printf("Speps now %d\n", ant->cur_steps);
 	ft_printf("Speps pre %d\n", ant->pre_steps);
 	if (ant->cur_steps > ant->pre_steps && ant->pre_steps != 0)
