@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:18:25 by widraugr          #+#    #+#             */
-/*   Updated: 2019/06/07 16:46:58 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/06/07 16:51:14 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -930,7 +930,7 @@ void	create_print_list(t_nlst *pant, t_ant *ant, int i)
 		iter = iter->next;
 		b++;
 	}
-	j = ant->cur_steps - b + 2;
+	j = ant->cur_steps - b + 1;
 	while (--j > 0)
 		add_new_edges(pant_it, "\0");
 	//print_edges(pant->next);
@@ -976,7 +976,7 @@ void	solution(t_ant *ant)
 		i++;
 	}
 	j = 0;
-	while (j <  ant->cur_steps + 1)
+	while (j <  ant->cur_steps)
 	{
 		i = -1;
 		while (++i < ant->count_ant)
