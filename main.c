@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:18:25 by widraugr          #+#    #+#             */
-/*   Updated: 2019/06/07 16:15:20 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/06/07 16:46:58 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -908,7 +908,9 @@ void	create_print_list(t_nlst *pant, t_ant *ant, int i)
 	t_nlst	*iter;
 	int		miss;
 	int		j;
+	int		b;
 
+	b = 0;
 	pant->next = NULL;
 	pant_it = &pant;
 	miss = i / ant->count_ways;
@@ -916,6 +918,7 @@ void	create_print_list(t_nlst *pant, t_ant *ant, int i)
 	{
 	//	ft_putendl("Hello");
 		add_new_edges(pant_it, "\0");
+		b++;
 		miss--;
 	}
 	if (ant->ways->iter == NULL)
@@ -925,12 +928,14 @@ void	create_print_list(t_nlst *pant, t_ant *ant, int i)
 	{
 		add_new_edges(pant_it, iter->name_edg);
 		iter = iter->next;
+		b++;
 	}
-	j = -1;
-	while (++j < 100)
+	j = ant->cur_steps - b + 2;
+	while (--j > 0)
 		add_new_edges(pant_it, "\0");
 	//print_edges(pant->next);
 	ant->ways->iter = ant->ways->iter->next;
+
 }
 
 /*
@@ -959,7 +964,7 @@ void	solution(t_ant *ant)
 {
 	int		i;
 	int		j;
-	t_nlst	*temp;
+	static t_nlst	*temp;
 	t_nlst	pant[ant->count_ant];
 
 	i = 0;
@@ -971,20 +976,19 @@ void	solution(t_ant *ant)
 		i++;
 	}
 	j = 0;
-	while (j < ant->cur_steps)
+	while (j <  ant->cur_steps + 1)
 	{
-		i = 0;
-		while (i < ant->count_ant)
+		i = -1;
+		while (++i < ant->count_ant)
 		{
-			pant[i] = *pant[i].next;
 			temp = &pant[i];
+			pant[i] = *pant[i].next;
 			if (temp->name_edg[0] != '\0')
 			{
 				ft_printf("L%d-", i + 1);
 				ft_putstr(temp->name_edg);
 				ft_putchar(' ');
 			}
-			i++;
 		}
 		ft_putchar('\n');
 		j++;
