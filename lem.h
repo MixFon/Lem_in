@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:30:49 by widraugr          #+#    #+#             */
-/*   Updated: 2019/05/31 18:10:29 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/06/07 13:35:50 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ typedef struct		s_nlst
 {
 	char			name_edg[NSIZE];
 	struct s_nlst	*next;
-	int				sum_ant;
 }					t_nlst;
 /*
 ** Structure node.
@@ -66,6 +65,7 @@ typedef struct		s_ways
 	int				len_way;
 	struct s_ways	*next;
 	struct s_ways	*prev;
+	struct s_ways	*iter;
 }					t_ways;
 
 typedef struct		s_ant
@@ -87,6 +87,12 @@ typedef struct		s_ant
 	int				max_count_way;
 	int				count_ways;
 }					t_ant;
+
+typedef struct	s_pant
+{
+	char			name_room[NSIZE];
+
+}					t_pant;
 
 void	depth_first_search(t_node *node, t_ant *ant);
 t_ways	*create_way(t_node *node, t_ant *ant);
