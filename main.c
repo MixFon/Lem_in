@@ -770,6 +770,7 @@ void	print_ant_room(t_ant *ant, t_nlst *nlst)
 	t_ways	*ways;
 	int		count;
 	static int		a = 0;
+	static int		b = 0;
 	//static int	bl = 0;
 	//static int	i = 0;
 
@@ -792,7 +793,10 @@ void	print_ant_room(t_ant *ant, t_nlst *nlst)
 	{
 		//ft_putendl("Hello1");
 		if (ways->len_way < ft_lstlen(nlst))
+		{
+			b = 1;
 			a++;
+		}
 	//	ft_printf("a = %d\n", a);
 		ways = ways->next;
 	}
@@ -1056,28 +1060,6 @@ void	remove_edge(t_node *node, t_ant *ant)
 		ant->pre_steps = 1;
 	}
 }
-/*
-void	remove_edge(t_node *node, t_ant *ant)
-{
-	t_node	*max_node;
-	t_node	*par_node;
-	t_nlst	*nlst;
-
-	max_node = search_node(node, ant->nmax_weid);
-	nlst = max_node->edg;
-	while (nlst != NULL)
-	{
-		par_node = search_node(node, nlst->name_edg);
-		if (par_node->level == max_node->level - 1 &&
-				check_name_short_way(nlst->name_edg, ant->ways))
-		{
-			delete_name_list(max_node->name, par_node->edg);
-			delete_name_list(par_node->name, max_node->edg);
-		}
-		nlst = nlst->next;
-	}
-}
-*/
 
 /*
 ** Delete and free ways.
