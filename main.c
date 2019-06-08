@@ -989,6 +989,7 @@ void	solution(t_ant *ant)
 		ft_putchar('\n');
 		j++;
 	}
+	exit(0);
 }
 /*
 ** Defines the weight of the node.
@@ -1199,8 +1200,9 @@ int		choice_way(t_ant *ant)
 void	print_ways(t_ant *ant)
 {
 	t_ways	*ways;
-	int		i = 0;
-
+	int		i;
+	
+	i = 0;
 	ways = ant->ways;
 	while (ways)
 	{
@@ -1312,7 +1314,7 @@ int		calc_steps(t_ant *ant)
 		ways = ways->next;
 	}
 	ant->pre_steps = ant->cur_steps;
-	ant->cur_steps = ((ant->count_ant - 1) / ant->count_ways) + ant->max_count_way;
+	ant->cur_steps = (ant->count_ant / ant->count_ways) + ant->max_count_way - 1;
 	ft_printf("Speps now %d\n", ant->cur_steps);
 	ft_printf("Speps pre %d\n", ant->pre_steps);
 	if (ant->cur_steps > ant->pre_steps && ant->pre_steps != 0)
@@ -1320,6 +1322,72 @@ int		calc_steps(t_ant *ant)
 	else
 		return (0);
 }
+
+void	sort_ways(t_ant *ant)
+{
+	t_ways	*ways;
+	t_ways	*pre;
+	t_ways	*temp;
+	int		i;
+
+	i = ant->count_ways + 1;
+	while (--i > 0)
+	{
+		ways = ant->ways;
+		while (ways->next != NULL)
+		{
+			pre = ways;
+			ways = ways->next;
+			if (pre->len_way > ways->len_way)
+			{
+				ft_putendl("Hello1");
+				temp = pre->prev;
+				temp->next = ways;
+				ways->prev = temp;
+				pre->next = ways->next;
+				ways->next = pre;
+				pre->prev = ways;
+				//break;
+				continue ;
+			}
+			//pre = pre->next;
+			//ways = ways->next;
+		}
+	}
+}
+
+void	cut_ways(t_ant *ant)
+{
+	t_ways	*ways;
+	t_ways	*pre;
+	int		i;
+	int		pre_step;
+	int		now_step;
+
+	i = 1;
+	pre_step = 0;
+	now_step = 0;
+	ways = ant->ways;
+	pre = ways;
+	while (ways != NULL)
+	{
+		pre_step = now_step;
+		now_step = ant->count_ant / i + ways->len_way - 1;	
+		ft_printf("now_step {%d}, pre_step [%d]\n", now_step, pre_step);
+		if (now_step > pre_step && pre_step != 0)
+		{
+			pre->next = NULL;
+			ant->cur_steps = pre_step;
+			ft_printf("ant->cur_step = %d\n", pre_step);
+			break;
+		}
+		ft_printf("i = %d\n", i);
+		i++;
+		pre = ways;
+		ways = ways->next;
+	}
+}
+
 
 void	special_case(t_ant *ant)
 {
@@ -1341,16 +1409,19 @@ void	special_case(t_ant *ant)
 	//	return ;
 	if (ways->len_way >= ant->count_ant)
 	{
-		ft_putendl("222");
+		ft_putendl(__func__);
 		ant->ways->next = NULL;
 		//delete_ways_exept_one(ant);
 		ant->count_ways = 1;
+		ant->max_count_way = ft_lstlen(ant->ways->way) - 1;
+		ft_putnbr(ant->max_count_way);
+		//calc_steps(ant);
+		cut_ways(ant);
 		print_ways(ant);
 		print_steps(ant);
 		solution(ant);
 	}
 }
-
 void	read_map(void)
 {
 	char	*line;
@@ -1403,7 +1474,9 @@ void	read_map(void)
 	breadth_first_search(node, ant);
 	print_node(node);
 	short_ways(node, ant);
-	calc_steps(ant);
+	sort_ways(ant);
+	//calc_steps(ant);
+	cut_ways(ant);
 	print_ways(ant);
 	print_steps(ant);
 	ft_putendl("SOLUTION");
