@@ -87,10 +87,9 @@ void					ft_check_coords_of_rooms(t_lem *lem,
 							int x, int y, char **mas);
 void					ft_free_vertex(t_vertex **vertex);
 void					ft_push_neighbour(t_neighbour **head, char *name);
-void					ft_add_neighbour(t_vertex **vertex,
-							t_link *link, t_lem *lem);
+void					ft_add_neighbour(t_vertex **vertex, t_link *link);
 void					ft_push_vertex(t_vertex **head, char *name);
-int						ft_check_vertex_exist(t_lem lem, char *name);
+int						ft_check_room_exist(t_lem lem, char *name);
 t_vertex				*ft_init_graph(t_lem *lem);
 int						ft_stack_is_empty(t_stack *head);
 void					ft_push_stack(t_stack **head, char *name);

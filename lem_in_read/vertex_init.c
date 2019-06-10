@@ -29,17 +29,6 @@ void		ft_push_vertex(t_vertex **head, char *name)
 	}
 }
 
-int			ft_check_vertex_exist(t_lem lem, char *name)
-{
-	while (lem.rooms)
-	{
-		if (ft_strequ(lem.rooms->name_room, name))
-			return (1);
-		lem.rooms = lem.rooms->next;
-	}
-	return (0);
-}
-
 t_vertex	*ft_init_graph(t_lem *lem)
 {
 	t_vertex	*vertex;
@@ -54,7 +43,7 @@ t_vertex	*ft_init_graph(t_lem *lem)
 	}
 	while (lem->links != NULL)
 	{
-		ft_add_neighbour(&vertex, lem->links, &tmp_lem);
+		ft_add_neighbour(&vertex, lem->links);
 		lem->links = lem->links->next;
 	}
 	*lem = tmp_lem;

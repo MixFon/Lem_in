@@ -27,28 +27,18 @@ void		ft_push_neighbour(t_neighbour **head, char *name)
 	}
 }
 
-void		ft_add_neighbour(t_vertex **vertex, t_link *link, t_lem *lem)
+void		ft_add_neighbour(t_vertex **vertex, t_link *link)
 {
 	t_vertex *tmp;
 
 	tmp = *vertex;
 	while (*vertex != NULL)
 	{
-		if (ft_check_vertex_exist(*lem, link->room1) &&
-			ft_check_vertex_exist(*lem, link->room2))
-		{
-			if (ft_strequ((*vertex)->name_vertex, link->room1))
-				ft_push_neighbour(&(*vertex)->neighbour, link->room2);
-			if (ft_strequ((*vertex)->name_vertex, link->room2))
-				ft_push_neighbour(&(*vertex)->neighbour, link->room1);
-			*vertex = (*vertex)->next;
-		}
-		else
-		{
-			ft_free_vertex(vertex);
-			ft_free_lem(lem);
-			ft_error();
-		}
+		if (ft_strequ((*vertex)->name_vertex, link->room1))
+			ft_push_neighbour(&(*vertex)->neighbour, link->room2);
+		if (ft_strequ((*vertex)->name_vertex, link->room2))
+			ft_push_neighbour(&(*vertex)->neighbour, link->room1);
+		*vertex = (*vertex)->next;
 	}
 	*vertex = tmp;
 }
