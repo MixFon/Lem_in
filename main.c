@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:18:25 by widraugr          #+#    #+#             */
-/*   Updated: 2019/06/07 17:11:20 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/06/10 16:35:18 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -742,6 +742,7 @@ t_ant	*init_ant(void)
 	new->lvl = 0;
 	new->count_ant = 0;
 	new->pre_steps = 0;
+	new->all_steps = 0;
 	new->bl = 0;
 	new->max_count_way = 0;
 	new->count_ways = 0;
@@ -761,48 +762,6 @@ int		ft_lstlen(t_nlst *nlst)
 		iter = iter->next;
 	}
 	return (i);
-}
-
-/*
-** Print ant in room.
-*/
-
-void	print_ant_room(t_ant *ant, t_nlst *nlst)
-{
-	t_nlst	*iter;
-	t_ways	*ways;
-	int		count;
-	static int		a = 0;
-	static int		b = 0;
-	//static int	bl = 0;
-	//static int	i = 0;
-
-	count = 0;
-	iter = nlst;
-	count = a;
-	while (iter != NULL)
-	{
-		ft_printf("L%d-%s ", ++count, iter->name_edg);
-		if (iter == iter->next)
-		{
-			ft_putchar('\n');
-			return ;
-		}
-		iter = iter->next;
-	}
-	ft_putchar('\n');
-	ways = ant->ways;
-	while (ways != NULL)
-	{
-		//ft_putendl("Hello1");
-		if (ways->len_way < ft_lstlen(nlst) - 1)
-		{
-			b = 1;
-			a++;
-		}
-	//	ft_printf("a = %d\n", a);
-		ways = ways->next;
-	}
 }
 
 /*
@@ -864,43 +823,6 @@ void	cheack_remove(t_ant *ant, t_queue *que, int i)
 		ways = ways->next;
 	}
 }
-/*
-** Print solution.
-*/
-
-/*
-void	solution(t_ant *ant)
-{
-	t_queue	*que;
-	//t_nlst	*nlst;
-	int		cur_ant;
-	int		i;
-	int		lst_len;
-
-	//exit(0);
-	cur_ant = 0;
-	i = 0;
-	admission_name_start(ant);
-	que = init_queue();
-	lst_len = ant->max_count_way;
-	ft_printf("Len lst  %d\n", lst_len);
-	insert_queue(que, ant);
-	while (i < ant->cur_steps)
-	{
-		//ft_putendl("Hello");
-		print_ant_room(ant, que->first);
-		if (i <= lst_len)
-		{
-		//	ft_putendl("Hello");
-			insert_queue(que, ant);
-		}
-		if (i >= ant->cur_steps - ant->max_count_way)
-			cheack_remove(ant, que, i);
-		i++;
-	}
-	exit(0);
-}
-*/
 
 void	create_print_list(t_nlst *pant, t_ant *ant, int i)
 {
@@ -939,25 +861,7 @@ void	create_print_list(t_nlst *pant, t_ant *ant, int i)
 }
 
 /*
-** .
-*/
-/*
-void	print_solution(t_nlst *pant, t_ant *ant)
-{
-	int		i;
-	t_nlst	*nlst;
-	
-	i = 0;
-	while (i < ant->cur_steps)
-	{
-		nlst = pant	
-		i++;
-	}
-
-}
-*/
-/*
-** .
+** Print solution.
 */
 
 void	solution(t_ant *ant)
@@ -972,6 +876,7 @@ void	solution(t_ant *ant)
 	while (++i < ant->count_ant)
 		create_print_list(&pant[i], ant, i);
 	j = 0;
+	ft_printf("ant->cur_steps = %d\n", ant->cur_steps);
 	while (j <  ant->cur_steps)
 	{
 		i = -1;
@@ -1271,50 +1176,31 @@ int		cheack_step(t_node *node, t_ant *ant)
 	return (1);
 }
 
-/*
-int		cheack_step(t_node *node, t_ant *ant)
+void	calc_all_ways(t_ant *ant)
 {
-	t_node *cur_node;
+	t_ways *ways;
 
-	if (ant->pre_steps == 0)
+	ways = ant->ways;
+	ant->all_steps = 0;
+	while (ways)
 	{
-		ft_putendl("Helllllllllllllllllllllllllllllllllllllllllllllllllllllllllo");
-		return (1);
+		if (ant->max_count_way < ways->len_way)
+			ant->max_count_way = ways->len_way;
+		ant->all_steps += ways->len_way;
+		ways = ways->next;
 	}
-	ft_printf("cheack_steps!!!\n cur_steps %d pre_steps %d\n",
-			ant->cur_steps, ant->pre_steps);
-	if (ant->cur_steps < ant->pre_steps)
-		return (1);
-	else	if (ant->bl == 0)
-	{
-		ft_printf("bl = [%d]", ant->bl);
-		ft_printf("insert {%s}-{%s}", ant->pre_firn, ant->pre_secn);
-		cur_node = search_node(node, ant->pre_firn);
-		add_new_edges(&cur_node->edg, ant->pre_secn);
-		cur_node = search_node(node, ant->pre_secn);
-		add_new_edges(&cur_node->edg, ant->pre_firn);
-	}
-	return (0);
+	ft_printf("Sum all ways !!!!!!!!!!!!!!!!!! %d\n", ant->all_steps);
 }
-*/
-
 /*
 ** Recolc_stepsad map.
 */
 
 int		calc_steps(t_ant *ant)
 {
-	t_ways *ways;
-
-	ways = ant->ways;
-	while (ways)
-	{
-		if (ant->max_count_way < ways->len_way)
-			ant->max_count_way = ways->len_way;
-		ways = ways->next;
-	}
+	calc_all_ways(ant);
 	ant->pre_steps = ant->cur_steps;
-	ant->cur_steps = (ant->count_ant / ant->count_ways) + ant->max_count_way - 1;
+	ant->cur_steps = (ant->all_steps + (ant->count_ant - ant->count_ways)) / ant->count_ways;
+	//ant->cur_steps = (ant->count_ant / ant->count_ways) + ant->max_count_way - 1;
 	ft_printf("Speps now %d\n", ant->cur_steps);
 	ft_printf("Speps pre %d\n", ant->pre_steps);
 	if (ant->cur_steps > ant->pre_steps && ant->pre_steps != 0)
@@ -1363,26 +1249,34 @@ void	cut_ways(t_ant *ant)
 	int		i;
 	int		pre_step;
 	int		now_step;
+	int		sum;
 
 	i = 1;
 	pre_step = 0;
 	now_step = 0;
+	sum = 0;
 	ways = ant->ways;
 	pre = ways;
 	while (ways != NULL)
 	{
 		pre_step = now_step;
+		sum += ways->len_way;
 		now_step = ant->count_ant / i + ways->len_way - 1;	
+		//now_step = (sum + (ant->count_ant - ant->count_ways)) / ant->count_ways;
 		ft_printf("now_step {%d}, pre_step [%d]\n", now_step, pre_step);
 		if (now_step > pre_step && pre_step != 0)
 		{
 			pre->next = NULL;
 			ant->cur_steps = pre_step;
+			ant->count_ways = i - 1;
 			ft_printf("ant->cur_step = %d\n", pre_step);
 			break;
 		}
 		ft_printf("i = %d\n", i);
 		i++;
+		ant->cur_steps = now_step;
+		ant->count_ways = i - 1;
+		//ft_printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ant->cur_step = %d\n", pre_step);
 		pre = ways;
 		ways = ways->next;
 	}
@@ -1477,9 +1371,11 @@ void	read_map(void)
 	sort_ways(ant);
 	//calc_steps(ant);
 	cut_ways(ant);
-	print_ways(ant);
 	print_steps(ant);
 	ft_putendl("SOLUTION");
+	calc_all_ways(ant);
+	ft_printf("Sum all pteps !!!!!! %d\n", ant->all_steps);
+	print_ways(ant);
 	solution(ant);
 }
 

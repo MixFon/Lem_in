@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:30:49 by widraugr          #+#    #+#             */
-/*   Updated: 2019/06/07 17:11:24 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/06/10 16:35:23 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ typedef struct		s_ant
 	int				bl;
 	int				count_ant;
 	int				max_count_way;
+	int				all_steps;
 	int				count_ways;
 }					t_ant;
 
