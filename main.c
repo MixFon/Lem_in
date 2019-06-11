@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:18:25 by widraugr          #+#    #+#             */
-/*   Updated: 2019/06/11 14:22:43 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/06/11 15:40:15 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -482,6 +482,10 @@ void	delete_all_list(t_nlst **lst)
 	*lst = NULL;
 }
 
+/*
+** Breadth-first search.
+*/
+
 void	iter_to_edg_lst(t_node *node, t_ant *ant, t_node *cur_node)
 {
 	int		i;
@@ -527,24 +531,6 @@ void	breadth_first_search(t_node *node, t_ant *ant)
 			return ;
 		}
 		iter_to_edg_lst(node, ant, cur_node);
-		/*
-		edg_lst = cur_node->edg;
-		i = cur_node->level;
-		weight = cur_node->weight;
-		cur_node->mark_bfs = 1;
-		while (edg_lst != NULL)
-		{
-			cur_node = search_node(node, edg_lst->name_edg);
-			cur_node->weight += weight;
-			if (cur_node->mark_bfs == 0)
-			{
-				insert(ant->que, edg_lst->name_edg);
-				cur_node->mark_bfs = 1;
-				cur_node->level = i + 1;
-			}
-			edg_lst = edg_lst->next;
-		}
-		*/
 		free(name);
 	}
 }
@@ -592,7 +578,46 @@ void	delete_list(t_nlst **way)
 	iter->next = NULL;
 	free(iter);
 }
+/*
+int		iter_to_lst(t_node *node, t_ant *ant, t_node *cur_node, t_ways *iter)
+{
+	return (0);
+}
+*/
 
+void	node_is_visited(t_nlst *lst, t_ways *iter, t_node *cur_node)
+{
+	if (lst == NULL)
+	{
+		iter->len_way--;
+		cur_node->dfs_mark = 1;
+		delete_list(&iter->way);
+	}
+}
+
+int		part(t_node *node, t_nlst *lst, t_ways *iter, t_ant *ant)
+{
+	char	*name;
+	t_node	*cur_node;
+
+	name = lst->name_edg;
+	cur_node = search_node(node, name);
+	if (!ft_strcmp(name, ant->name_start))
+	{
+		add_new_nlst(&iter->way, name);
+		cur_node->dfs_mark = 1;
+		return (1);
+	}
+	else if (cur_node->level == ant->s_lvl - 1 && cur_node->dfs_mark == 0)
+	{
+		add_new_nlst(&iter->way, name);
+		iter->len_way++;
+		cur_node->dfs_mark = 1;
+		return (2);
+	}
+	return (0);
+}
+/////////////////////////////////////////////////////////////////////////////////////////////
 /*
 ** Create list only short way.
 */
@@ -600,10 +625,10 @@ void	delete_list(t_nlst **way)
 t_ways	*create_short_way(t_node *node, t_ant *ant)
 {
 	t_node	*cur_node;
-	t_nlst	*lst;
 	t_ways	*iter;
 	char	*name;
-	int		s_lvl;
+	int		bl;
+	t_nlst	*lst;
 
 	iter = create_new_way();
 	iter->way = creat_new_lst(ant->name_end);
@@ -612,33 +637,18 @@ t_ways	*create_short_way(t_node *node, t_ant *ant)
 		name = iter->way->name_edg;
 		cur_node = search_node(node, name);
 		cur_node->dfs_mark = 1;
-		s_lvl = cur_node->level;
+		ant->s_lvl = cur_node->level;
 		lst = cur_node->edg;
 		while (lst != NULL)
 		{
-			name = lst->name_edg;
-			cur_node = search_node(node, name);
-			if (!ft_strcmp(name, ant->name_start))
-			{
-				add_new_nlst(&iter->way, name);
-				cur_node->dfs_mark = 1;
+			bl = part(node, lst, iter, ant);
+			if (bl == 1)
 				return (iter);
-			}
-			else if (cur_node->level == s_lvl - 1 && cur_node->dfs_mark == 0)
-			{
-				add_new_nlst(&iter->way, name);
-				iter->len_way++;
-				cur_node->dfs_mark = 1;
-				break ;
-			}
+			else	if (bl == 2)
+				break;
 			lst = lst->next;
 		}
-		if (lst == NULL)
-		{
-			iter->len_way--;
-			cur_node->dfs_mark = 1;
-			delete_list(&iter->way);
-		}
+		node_is_visited(lst, iter, cur_node);
 	}
 	return (NULL);
 }
@@ -728,6 +738,7 @@ t_ant	*init_ant(void)
 	new->all_steps = 0;
 	new->bl = 0;
 	new->max_count_way = 0;
+	new->s_lvl = 0;
 	new->count_ways = 0;
 	return (new);
 }
@@ -835,7 +846,7 @@ void	create_print_list(t_nlst *pant, t_ant *ant, int i)
 		iter = iter->next;
 		b++;
 	}
-	j = ant->cur_steps - b + 1;
+	j = ant->cur_steps - b + 2;
 	while (--j > 0)
 		add_new_edges(pant_it, "\0");
 	//print_edges(pant->next);
@@ -859,7 +870,8 @@ void	solution(t_ant *ant)
 	while (++i < ant->count_ant)
 		create_print_list(&pant[i], ant, i);
 	j = 0;
-	while (j <  ant->cur_steps)
+	ft_printf("ant->count_ant  %d\n", ant->cur_steps);
+	while (j <  ant->cur_steps + 1)
 	{
 		i = -1;
 		while (++i < ant->count_ant)
@@ -930,14 +942,11 @@ int	delete_name_list(char *name, t_nlst **nlst)
 	t_nlst	*iter;
 	t_nlst	*pre;
 
-	ft_putendl("Hello");
 	pre = *nlst;
-	ft_putendl("Hello1");
 	iter = (*nlst)->next;
 	if (!ft_strcmp(name, (*nlst)->name_edg))
 	{
 		*nlst = (*nlst)->next;
-		ft_printf("Delete1 %s = %s\n", pre->name_edg, name);
 		free(pre);	
 		return (0);
 	}
@@ -946,14 +955,12 @@ int	delete_name_list(char *name, t_nlst **nlst)
 		if (!ft_strcmp(name, iter->name_edg))
 		{
 			pre->next = iter->next;	
-			ft_printf("Delete2 %s = %s\n", iter->name_edg, name);
 			free(iter);
 			return (0);
 		}
 		pre = pre->next;
 		iter = iter->next;
 	}
-	ft_putendl("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 	return (1);
 }
 
