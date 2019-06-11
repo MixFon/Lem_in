@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:18:25 by widraugr          #+#    #+#             */
-/*   Updated: 2019/06/10 16:35:18 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/06/11 14:22:43 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -418,7 +418,7 @@ int		cheack_short_path(t_node *node, t_ant *ant)
 	while (iter)
 	{
 		cur_node = search_node(node, iter->name_edg);
-		if (/*cur_node->level <= s_lvl - 1 &&*/ cur_node->dfs_mark == 0)
+		if (cur_node->dfs_mark == 0)
 			return (1);
 		iter = iter->next;
 	}
@@ -442,7 +442,6 @@ int		short_ways(t_node *node, t_ant *ant)
 		{
 			if(!(ant->ways = create_short_way(node, ant)))
 			{
-				ft_putendl("Heeeeeelllllllo");
 				ant->count_ways++;
 				ant->pre_steps = 1;
 				ant->bl = 0;
@@ -483,6 +482,30 @@ void	delete_all_list(t_nlst **lst)
 	*lst = NULL;
 }
 
+void	iter_to_edg_lst(t_node *node, t_ant *ant, t_node *cur_node)
+{
+	int		i;
+	int		weight;
+	t_nlst	*edg_lst;
+
+	edg_lst = cur_node->edg;
+	i = cur_node->level;
+	weight = cur_node->weight;
+	cur_node->mark_bfs = 1;
+	while (edg_lst != NULL)
+	{
+		cur_node = search_node(node, edg_lst->name_edg);
+		cur_node->weight += weight;
+		if (cur_node->mark_bfs == 0)
+		{
+			insert(ant->que, edg_lst->name_edg);
+			cur_node->mark_bfs = 1;
+			cur_node->level = i + 1;
+		}
+		edg_lst = edg_lst->next;
+	}
+}
+
 /*
 ** Breadth-first search.
 */
@@ -490,31 +513,21 @@ void	delete_all_list(t_nlst **lst)
 void	breadth_first_search(t_node *node, t_ant *ant)
 {
 	t_node	*cur_node;
-	t_nlst	*edg_lst;
 	char	*name;
-	int		i;
-	int		max_weid;
-	int		weight;
 
-	i = 0;
-	weight = 0;
-	max_weid = 0;
 	insert(ant->que, ant->name_start);
-	ft_printf("Name start {%s}\n", ant->name_start);
-	ft_putendl("Queue:");
-	print_edges(ant->que->first);
 	while (!isempty_queue(ant->que))
 	{
 		name = remove_first(ant->que, 1);
 		cur_node = search_node(node, name);
-		ft_printf("Remove %s Level %d\n", name, cur_node->level);
 		if (!ft_strcmp(name, ant->name_end))
 		{
-			ft_printf("Finish %s\n", name);
 			ant->lvl = cur_node->level;
 			delete_all_list(&ant->que->first);
 			return ;
 		}
+		iter_to_edg_lst(node, ant, cur_node);
+		/*
 		edg_lst = cur_node->edg;
 		i = cur_node->level;
 		weight = cur_node->weight;
@@ -523,22 +536,15 @@ void	breadth_first_search(t_node *node, t_ant *ant)
 		{
 			cur_node = search_node(node, edg_lst->name_edg);
 			cur_node->weight += weight;
-			if (cur_node->weight > max_weid)
-			{
-				max_weid = cur_node->weight;
-				ft_strcpy(ant->nmax_weid, cur_node->name);
-			}
 			if (cur_node->mark_bfs == 0)
 			{
-			//	cur_node->weight += weight;
 				insert(ant->que, edg_lst->name_edg);
 				cur_node->mark_bfs = 1;
-				//cur_node->level++;
 				cur_node->level = i + 1;
-				ft_printf("Insert %s\n", edg_lst->name_edg);
 			}
 			edg_lst = edg_lst->next;
 		}
+		*/
 		free(name);
 	}
 }
@@ -598,31 +604,23 @@ t_ways	*create_short_way(t_node *node, t_ant *ant)
 	t_ways	*iter;
 	char	*name;
 	int		s_lvl;
-	int		i = 0;
 
 	iter = create_new_way();
 	iter->way = creat_new_lst(ant->name_end);
-	ft_printf("\nShort Way! Name start stack '%s'\n", ant->name_end);
 	while (iter->way != NULL)
 	{
 		name = iter->way->name_edg;
 		cur_node = search_node(node, name);
 		cur_node->dfs_mark = 1;
 		s_lvl = cur_node->level;
-		ft_printf("%s level %d sum = %d\n", name, s_lvl, ++i);
 		lst = cur_node->edg;
 		while (lst != NULL)
 		{
 			name = lst->name_edg;
 			cur_node = search_node(node, name);
-			ft_printf("cha %s level %d\n", name, cur_node->level);
 			if (!ft_strcmp(name, ant->name_start))
 			{
-				ft_printf("Find! %s\n", name);
-				ft_printf("Path\n");
-				ft_printf("len_way %d\n", iter->len_way);
 				add_new_nlst(&iter->way, name);
-				print_edges(iter->way);
 				cur_node->dfs_mark = 1;
 				return (iter);
 			}
@@ -631,14 +629,12 @@ t_ways	*create_short_way(t_node *node, t_ant *ant)
 				add_new_nlst(&iter->way, name);
 				iter->len_way++;
 				cur_node->dfs_mark = 1;
-				ft_printf("Push to list way %s\n", name);
 				break ;
 			}
 			lst = lst->next;
 		}
-		if (lst == NULL)	//if (ft_strcmp(iter->way->name_edg, ant->name_end))
+		if (lst == NULL)
 		{
-			ft_printf("Delete list way %s\n", iter->way->name_edg);
 			iter->len_way--;
 			cur_node->dfs_mark = 1;
 			delete_list(&iter->way);
@@ -659,41 +655,31 @@ t_ways	*create_way(t_node *node, t_ant *ant)
 	t_ways	*iter;
 	char	*name;
 	int		s_lvl;
-	int		i = 0;
 	int a = 0;
 
 	iter = create_new_way();
 	iter->way = creat_new_lst(ant->name_end);
-	ft_printf("\nName start stack '%s'\n", ant->name_end);
-	while (iter->way != NULL /*|| cheack_short_path(node, ant)*/)
+	while (iter->way != NULL)
 	{
 		name = iter->way->name_edg;
 		cur_node = search_node(node, name);
 		cur_node->dfs_mark = 1;
 		s_lvl = cur_node->level;
-		ft_printf("%s level %d sum = %d\n", name, s_lvl, ++i);
 		lst = cur_node->edg;
 		a++;
 		while (lst)
 		{
 			name = lst->name_edg;
 			cur_node = search_node(node, name);
-			ft_printf("cha %s level %d\n", name, cur_node->level);
 			if (!ft_strcmp(name, ant->name_start))
 			{
-				ft_printf("Find! %s\n", name);
-				ft_printf("Path\n");
-				ft_printf("len_way %d\n", iter->len_way);
 				if (a == 1)
 				{
 					lst = lst->next;
 					continue ;
 				}
-					//return (NULL);
 				add_new_nlst(&iter->way, name);
-				print_edges(iter->way);
 				cur_node->dfs_mark = 1;
-			//	ant->ways = iter;
 				return (iter);
 			}
 			else if (cur_node->level == s_lvl - 1 && cur_node->dfs_mark == 0)
@@ -701,22 +687,19 @@ t_ways	*create_way(t_node *node, t_ant *ant)
 				add_new_nlst(&iter->way, name);
 				iter->len_way++;
 				cur_node->dfs_mark = 1;
-				ft_printf("Push to list way %s\n", name);
 				break ;
 			}
-			else if (/*cur_node->level <= s_lvl &&*/ cur_node->dfs_mark == 0)
+			else if (cur_node->dfs_mark == 0)
 			{
 				add_new_nlst(&iter->way, name);
 				iter->len_way++;
 				cur_node->dfs_mark = 1;
-				ft_printf("Push to list way1 %s\n", name);
 				break ;
 			}
 			lst = lst->next;
 		}
-		if (lst == NULL)	//if (ft_strcmp(iter->way->name_edg, ant->name_end))
+		if (lst == NULL)
 		{
-			ft_printf("Delete list way %s\n", iter->way->name_edg);
 			iter->len_way--;
 			cur_node->dfs_mark = 1;
 			delete_list(&iter->way);
@@ -866,17 +849,16 @@ void	create_print_list(t_nlst *pant, t_ant *ant, int i)
 
 void	solution(t_ant *ant)
 {
-	int		i;
-	int		j;
+	int				i;
+	int				j;
 	static t_nlst	*temp;
-	t_nlst	pant[ant->count_ant];
+	t_nlst			pant[ant->count_ant];
 
 	i = -1;
 	admission_name_start(ant);
 	while (++i < ant->count_ant)
 		create_print_list(&pant[i], ant, i);
 	j = 0;
-	ft_printf("ant->cur_steps = %d\n", ant->cur_steps);
 	while (j <  ant->cur_steps)
 	{
 		i = -1;
@@ -908,7 +890,7 @@ void	weight_node(t_node *node)
 	iter = node;
 	while (iter != NULL)
 	{
-		iter->weight = 1; //ft_lstlen(iter->edg);
+		iter->weight = 1;
 		iter = iter->next;
 	}
 }
@@ -1007,8 +989,6 @@ void	define_fir_sec_wei(t_node *node, t_ant *ant)
 		}
 		way = way->next;
 	}
-	ft_printf("fir = %s wei = %d; sec = %s wei = %d\n",
-			ant->fir_wei, fir, ant->sec_wei, sec);
 }
 
 /*
@@ -1019,9 +999,6 @@ void	remove_edge(t_node *node, t_ant *ant)
 	t_node	*fir_node;
 	t_node	*sec_node;
 
-	ft_printf("ant->fir_wei {%s}\n",ant->fir_wei);
-	ft_printf("ant->sec_wei {%s}\n",ant->sec_wei);
-	ft_putendl("Write to reviose");
 	if (ant->fir_wei[0] == '\0' || ant->sec_wei[0] == '\0')
 		return ;
 	ft_strcpy(ant->pre_firn, ant->fir_wei);
@@ -1146,18 +1123,10 @@ int		cheack_step(t_node *node, t_ant *ant)
 {
 	t_node *cur_node;
 
-	ft_putendl(__func__);
 	if (ant->cur_steps == 0)
-	{
-		ft_putendl("Helllllllllllllllllllllllllllllllllllllllllllllllllllllllllo");
 		return (1);
-	}
-	ft_printf("cheack_steps!!!\ncur_steps %d pre_steps %d\n",
-			ant->cur_steps, ant->pre_steps);
 	if (ant->cur_steps > ant->pre_steps && ant->pre_steps != 0)
 	{	
-		ft_printf("bl = [%d]", ant->bl);
-		ft_printf("insert {%s}-{%s}", ant->pre_firn, ant->pre_secn);
 		if (ant->bl == 0)
 		{
 			cur_node = search_node(node, ant->pre_firn);
@@ -1168,11 +1137,7 @@ int		cheack_step(t_node *node, t_ant *ant)
 		return (0);
 	}
 	else
-	{
-		ft_printf("2bl = [%d]", ant->bl);
-		ft_printf("2insert {%s}-{%s}", ant->pre_firn, ant->pre_secn);
 		return (1);
-	}
 	return (1);
 }
 
@@ -1189,8 +1154,8 @@ void	calc_all_ways(t_ant *ant)
 		ant->all_steps += ways->len_way;
 		ways = ways->next;
 	}
-	ft_printf("Sum all ways !!!!!!!!!!!!!!!!!! %d\n", ant->all_steps);
 }
+
 /*
 ** Recolc_stepsad map.
 */
@@ -1199,10 +1164,10 @@ int		calc_steps(t_ant *ant)
 {
 	calc_all_ways(ant);
 	ant->pre_steps = ant->cur_steps;
-	ant->cur_steps = (ant->all_steps + (ant->count_ant - ant->count_ways)) / ant->count_ways;
-	//ant->cur_steps = (ant->count_ant / ant->count_ways) + ant->max_count_way - 1;
-	ft_printf("Speps now %d\n", ant->cur_steps);
-	ft_printf("Speps pre %d\n", ant->pre_steps);
+	if (((ant->all_steps + ant->count_ant - ant->count_ways) % ant->count_ways) != 0)
+		ant->cur_steps = (ant->all_steps + (ant->count_ant - ant->count_ways)) / ant->count_ways + 1;
+	else
+		ant->cur_steps = (ant->all_steps + (ant->count_ant - ant->count_ways)) / ant->count_ways;
 	if (ant->cur_steps > ant->pre_steps && ant->pre_steps != 0)
 		return (1);
 	else
@@ -1226,18 +1191,14 @@ void	sort_ways(t_ant *ant)
 			ways = ways->next;
 			if (pre->len_way > ways->len_way)
 			{
-				ft_putendl("Hello1");
 				temp = pre->prev;
 				temp->next = ways;
 				ways->prev = temp;
 				pre->next = ways->next;
 				ways->next = pre;
 				pre->prev = ways;
-				//break;
 				continue ;
 			}
-			//pre = pre->next;
-			//ways = ways->next;
 		}
 	}
 }
@@ -1261,22 +1222,20 @@ void	cut_ways(t_ant *ant)
 	{
 		pre_step = now_step;
 		sum += ways->len_way;
-		now_step = ant->count_ant / i + ways->len_way - 1;	
-		//now_step = (sum + (ant->count_ant - ant->count_ways)) / ant->count_ways;
-		ft_printf("now_step {%d}, pre_step [%d]\n", now_step, pre_step);
+		if (((sum + ant->count_ant - i) % i) != 0)
+			now_step = (sum + ant->count_ant - i) / i + 1;
+		else
+			now_step = (sum + ant->count_ant - i) / i;
 		if (now_step > pre_step && pre_step != 0)
 		{
 			pre->next = NULL;
 			ant->cur_steps = pre_step;
 			ant->count_ways = i - 1;
-			ft_printf("ant->cur_step = %d\n", pre_step);
 			break;
 		}
-		ft_printf("i = %d\n", i);
 		i++;
 		ant->cur_steps = now_step;
 		ant->count_ways = i - 1;
-		//ft_printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ant->cur_step = %d\n", pre_step);
 		pre = ways;
 		ways = ways->next;
 	}
@@ -1288,70 +1247,31 @@ void	special_case(t_ant *ant)
 	t_ways *ways;
 
 	ways = ant->ways;
-	/*
-	if (ways->len_way == 1)
-	{
-		ft_putendl("111");
-		ant->ways->next = NULL;
-		ant->count_ways = 1;
-		ant->ways = ways;
-		print_steps(ant);
-		solution(ant);
-	}
-	*/
-	//if (ant->count_ways != 1)
-	//	return ;
 	if (ways->len_way >= ant->count_ant)
 	{
-		ft_putendl(__func__);
 		ant->ways->next = NULL;
-		//delete_ways_exept_one(ant);
 		ant->count_ways = 1;
 		ant->max_count_way = ft_lstlen(ant->ways->way) - 1;
-		ft_putnbr(ant->max_count_way);
-		//calc_steps(ant);
 		cut_ways(ant);
 		print_ways(ant);
-		print_steps(ant);
 		solution(ant);
 	}
 }
-void	read_map(void)
-{
-	char	*line;
-	t_node	*node;
-	t_ant	*ant;
-	//int		fd;
 
-	line = NULL;
-	node = NULL;
-	//fd = open("map1", O_RDONLY);
-	ant = init_ant();
-	while(get_next_line(0, &line))
-	{
-		ft_printf("%s\n", line);
-		if (ant->count_ant == 0)
-			ant->count_ant = ft_atoi(line);
-		if (check_name_octothorpe(line))
-			node = add_node(node, ant, &line);
-		else	if (check_link_node(line))
-			create_edges(node, line);
-		ft_strdel(&line);
-	}
-	//print_list(node);
+void	working(t_node *node, t_ant *ant)
+{
 	while (cheack_step(node, ant))
 	{
 		weight_node(node);
 		breadth_first_search(node, ant);
-		print_node(node);
+		//print_node(node);
 		if(short_ways(node, ant))
 		{
-			ft_putendl("RRRRRRRR");
 			zeroing_bfs(node);
 			delete_ways(ant);
 			continue ;
 		}
-		print_ways(ant);
+		//print_ways(ant);
 		if(calc_steps(ant))
 		{
 			zeroing_bfs(node);
@@ -1364,36 +1284,43 @@ void	read_map(void)
 		zeroing_bfs(node);
 		delete_ways(ant);
 	}
+}
+
+void	read_map(void)
+{
+	char	*line;
+	t_node	*node;
+	t_ant	*ant;
+
+	line = NULL;
+	node = NULL;
+	ant = init_ant();
+	while(get_next_line(0, &line))
+	{
+		ft_printf("%s\n", line);
+		if (ant->count_ant == 0)
+			ant->count_ant = ft_atoi(line);
+		if (check_name_octothorpe(line))
+			node = add_node(node, ant, &line);
+		else	if (check_link_node(line))
+			create_edges(node, line);
+		ft_strdel(&line);
+	}
+	working(node, ant);
 	weight_node(node);
 	breadth_first_search(node, ant);
-	print_node(node);
+	//print_node(node);
 	short_ways(node, ant);
 	sort_ways(ant);
-	//calc_steps(ant);
 	cut_ways(ant);
-	print_steps(ant);
-	ft_putendl("SOLUTION");
-	calc_all_ways(ant);
-	ft_printf("Sum all pteps !!!!!! %d\n", ant->all_steps);
+	//print_steps(ant);
+	//calc_all_ways(ant);
 	print_ways(ant);
 	solution(ant);
 }
 
 int		main(void)
 {
-	/*
-	t_queue *que;
-
-	que = init_queue();
-	insert(que, "1");
-	insert(que, "2");
-	insert(que, "3");
-	insert(que, "4");
-	print_edges(que->first);
-	remove_last(que);
-	ft_putchar('\n');
-	print_edges(que->first);
-	*/
 	read_map();
 	return (0);
 }
