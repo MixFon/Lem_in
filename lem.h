@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:30:49 by widraugr          #+#    #+#             */
-/*   Updated: 2019/06/12 12:58:12 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/06/12 14:06:10 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,3 +103,4 @@ t_ways	*create_short_way(t_node *node, t_ant *ant);
 void	cheack_short_way(t_ant *ant);
 void	solution(t_ant *ant);
 void	print_ways(t_ant *ant);
+void	delete_ways(t_ant *ant);
