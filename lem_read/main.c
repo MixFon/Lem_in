@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:18:25 by widraugr          #+#    #+#             */
-/*   Updated: 2019/06/13 20:00:08 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/06/14 13:16:05 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -361,28 +361,12 @@ void	copy_name(char *name, char *line)
 ** Ceack liks. Line???
 */
 
-t_node	*add_node(t_node *node, t_ant *ant, char **line)
+t_node	*add_node(t_node *node, char **line)
 {
 	t_node	*n_node;
 	t_node	*first;
 
 	first = node;
-	if (!ft_strncmp("##start", *line, 7))
-	{
-		ft_strdel(line);
-		get_next_line(0, line);
-		ft_putendl(*line);
-		copy_name(ant->name_start, *line);
-		ft_printf("Start name = %s\n", ant->name_start);
-	}
-	else	if (!ft_strncmp("##end", *line, 5))
-	{
-		ft_strdel(line);
-		get_next_line(0, line);
-		ft_putendl(*line);
-		copy_name(ant->name_end, *line);
-		ft_printf("End name = %s\n", ant->name_end);
-	}
 	if (!node)
 	{
 		node = new_node(*line);
@@ -1373,6 +1357,72 @@ void	working(t_node *node, t_ant *ant)
 	}
 }
 
+/*
+** Print room's name and coor.
+** Delete!!!!!!!!!!!!!!!!!!!!!!!!!11
+*/
+
+void	print_room_coor(t_room *rooms)
+{
+	ft_putstr(rooms->name_room);
+	ft_putchar(' ');
+	ft_putnbr(rooms->coord_x);
+	ft_putchar(' ');
+	ft_putnbr(rooms->coord_x);
+	ft_putchar('\n');
+}
+
+/*
+** Copy node .
+*/
+
+void	copy_node(t_node ***node, t_room *rooms)
+{
+	t_room	*rooms_it;
+	
+	rooms_it = rooms;
+	while (rooms_it != NULL)
+	{
+		print_room_coor(rooms_it);
+		**node = add_node(**node, &rooms_it->name_room);
+		rooms_it = rooms_it->next;
+	}
+	//print_node(*node);
+}
+
+/*
+** Copy link.
+*/
+
+void	copy_link(t_node **node, t_link *links)
+{
+	t_link	*links_it;
+	t_node	*cur_node;
+
+	links_it = links;
+	while (links_it != NULL)
+	{
+		cur_node = search_node(*node, links_it->room1);
+		add_new_edges(&cur_node->edg, links_it->room2);
+		cur_node = search_node(*node, links_it->room2);
+		add_new_edges(&cur_node->edg, links_it->room1);
+		links_it = links_it->next;
+	}
+}
+
+/*
+** Copy node and link to ant.
+*/
+
+void	copy_node_link(t_node **node, t_ant *ant, t_lem *lem)
+{
+	copy_node(&node, lem->rooms);	
+	copy_link(node, lem->links); 
+	ft_strcpy(ant->name_start, lem->start.name_room);
+	ft_strcpy(ant->name_end, lem->end.name_room);
+	ant->count_ant = lem->count_ants;
+}
+
 void	read_map(void)
 {
 	//char	*line;
@@ -1396,11 +1446,11 @@ void	read_map(void)
 		ft_strdel(&line);
 	}
 	*/
-
 	lem = ft_get_lem();
 	ft_check_graph(&lem);
+	copy_node_link(&node, ant, &lem);
 	ft_free_lem(&lem);
-exit(0);
+	//exit(0);
 	working(node, ant);
 	ft_putendl("RE");
 	print_ways(ant);
