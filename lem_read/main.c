@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:18:25 by widraugr          #+#    #+#             */
-/*   Updated: 2019/06/14 18:18:36 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/06/14 18:29:24 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1231,7 +1231,7 @@ int		finish_cut(t_ant *ant, t_ways *pre, int *now_step, int *pre_step)
 		ft_putendl("Hello4???????????");
 		delete_tail_ways(pre->next);
 		pre->next = NULL;
-		ant->cur_steps = *now_step + 1;
+		ant->cur_steps = *pre_step + 1;
 		ant->count_ways = ant->a - 1;
 		ft_putendl("Hello4???????????");
 		return (1);
