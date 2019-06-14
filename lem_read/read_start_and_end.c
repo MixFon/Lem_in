@@ -101,17 +101,18 @@ void	ft_start_or_end_not_comment(char **str, t_lem *lem, char **line)
 	}
 }
 
-void	ft_read_start_or_end(char **str, t_lem *lem)
+void	ft_read_start_or_end(char **str, t_lem *lem, char **file)
 {
 	char *line;
 
 	line = NULL;
 	if (get_next_line(0, &line) > 0)
 	{
+		ft_to_file(file, line);
 		if (ft_is_comment(line))
 		{
 			free(line);
-			ft_read_start_or_end(str, lem);
+			ft_read_start_or_end(str, lem, file);
 		}
 		else
 		{
@@ -123,6 +124,7 @@ void	ft_read_start_or_end(char **str, t_lem *lem)
 	{
 		free(*str);
 		ft_free_lem(lem);
+		free(*file);
 		ft_error();
 	}
 }

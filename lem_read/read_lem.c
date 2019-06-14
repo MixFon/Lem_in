@@ -6,7 +6,7 @@
 /*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/23 16:09:21 by eskeleto          #+#    #+#             */
-/*   Updated: 2019/06/13 19:03:35 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/05/23 16:11:09 by eskeleto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,45 +21,46 @@ int		ft_is_comment(char *str)
 	return (0);
 }
 
-void	ft_get_counts_ants(t_lem *lem)
+void	ft_get_counts_ants(t_lem *lem, char **file)
 {
 	char	*line;
-	int		count_ants;
 
 	line = NULL;
 	if (get_next_line(0, &line) > 0)
 	{
+		ft_to_file(file, line);
 		if (ft_is_comment(line))
 		{
 			free(line);
-			ft_get_counts_ants(lem);
+			ft_get_counts_ants(lem, file);
 			return ;
 		}
 		else if (ft_strisdigit(line))
 		{
-			count_ants = ft_atoi(line);
-			if (ft_check_int(line) && (count_ants > 0))
+			if (ft_check_int(line) && (ft_atoi(line) > 0))
 			{
-				lem->count_ants = count_ants;
+				lem->count_ants = ft_atoi(line);
 				free(line);
 				return ;
 			}
 		}
 		free(line);
 	}
+	free(*file);
 	ft_error();
 }
 
-void	ft_read_farm(t_lem *lem)
+void	ft_read_farm(t_lem *lem, char **file)
 {
 	char	*line;
 
 	line = NULL;
 	while (get_next_line(0, &line) > 0)
 	{
+		ft_to_file(file, line);
 		if (ft_strequ(line, "##start") || ft_strequ(line, "##end"))
 		{
-			ft_read_start_or_end(&line, lem);
+			ft_read_start_or_end(&line, lem, file);
 		}
 		else if (line[0] == '#')
 		{
@@ -92,12 +93,12 @@ void	ft_init_lem(t_lem *lem)
 	lem->links = NULL;
 }
 
-t_lem	ft_get_lem(void)
+t_lem	ft_get_lem(char **file)
 {
 	t_lem	lem;
 
 	ft_init_lem(&lem);
-	ft_get_counts_ants(&lem);
-	ft_read_farm(&lem);
+	ft_get_counts_ants(&lem, file);
+	ft_read_farm(&lem, file);
 	return (lem);
 }

@@ -6,11 +6,10 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:18:25 by widraugr          #+#    #+#             */
-/*   Updated: 2019/06/14 13:16:05 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/06/14 18:16:28 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//#include "../lem.h"
 #include "lem_in.h"
 #include "../lem.h"
 
@@ -22,45 +21,6 @@ void	sys_err(char *err)
 {
 	write(2, err, ft_strlen(err));
 	exit(0);
-}
-
-/*
-** Check name node.
-** Check symbol octothorpe.
-** For search comments, start or end.
-*/
-
-int		check_name_octothorpe(char *line)
-{
-	int space;
-
-	space = 0;
-	if (!ft_strncmp("##", line, 2))
-		return (1);
-	while (*line != '\0')
-	{
-		if (*line == ' ')
-		   space++;	
-		line++;
-	}
-	if (space == 2)
-		return (1);
-	return (0);
-}
-
-/*
-** Check link node.
-*/
-
-int		check_link_node(char *line)
-{
-	while (*line != '\0')
-	{
-		if (*line == '-')
-			return (1);
-		line++;
-	}
-	return (0);
 }
 
 /*
@@ -144,8 +104,8 @@ void	print_node(t_node *node)
 {
 	while (node)
 	{
-		ft_printf("name = %s,    level  = %d weight = %d\n",
-			node->name, node->level, node->weight);
+		ft_printf("name = %s,    level  = %d weight = %d dfs {%d}\n",
+			node->name, node->level, node->weight, node->dfs_mark);
 		print_edges(node->edg);
 		node = node->next;
 	}
@@ -391,9 +351,11 @@ int		cheack_short_path(t_node *node, t_ant *ant)
 	cur_node = search_node(node, ant->name_end);
 	iter = cur_node->edg;
 	s_lvl = cur_node->level;
-	while (iter)
+	ft_putendl("bb");
+	while (iter != NULL)
 	{
 		cur_node = search_node(node, iter->name_edg);
+		ft_printf("name node {%s} dfs [%d]\n",cur_node->name, cur_node->dfs_mark);
 		if (cur_node->dfs_mark == 0)
 			return (1);
 		iter = iter->next;
@@ -431,8 +393,10 @@ int		short_ways(t_node *node, t_ant *ant)
 			if (first_short_way(node, ant))
 				return (1);
 			ant->count_ways++;
+			ft_putendl("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 			continue ;
 		}
+		ft_putendl("?????????????????????????????????");
 		if(!(iter = create_way(node, ant)))
 			return (0) ;
 		ant->count_ways++;
@@ -574,10 +538,21 @@ void	node_is_visited(t_nlst *lst, t_ways *iter, t_node *cur_node)
 {
 	if (lst == NULL)
 	{
+		ft_putendl("lst == 0");
 		iter->len_way--;
 		cur_node->dfs_mark = 1;
 		delete_list(&iter->way);
 	}
+}
+
+t_node	*help(t_node *node, t_ways *iter, t_ant *ant)
+{
+	t_node *cur_node;
+
+	cur_node = search_node(node, iter->way->name_edg);
+	cur_node->dfs_mark = 1;
+	ant->s_lvl = cur_node->level;
+	return (cur_node);
 }
 
 void	work_dfs(t_ways *iter, t_nlst **lst, t_node *cur_node)
@@ -594,29 +569,24 @@ int		part(t_node *node, t_nlst *lst, t_ways *iter, t_ant *ant)
 
 	name = lst->name_edg;
 	cur_node = search_node(node, name);
+	ft_printf("    lst name {%s} dfs [%d]\n",cur_node->name, cur_node->dfs_mark);
 	if (!ft_strcmp(name, ant->name_start))
 	{
+		ft_putendl("A");
 		add_new_nlst(&iter->way, name);
 		cur_node->dfs_mark = 1;
 		return (1);
 	}
-	else if (cur_node->level == ant->s_lvl - 1 && cur_node->dfs_mark == 0)
+	else if (cur_node->level == ant->s_lvl - 1 && cur_node->dfs_mark == 0 &&
+			cur_node->level != 0)
 	{
+		ft_putendl("B");
 		work_dfs(iter, &lst, cur_node);
 		return (2);
 	}
 	return (0);
 }
 
-t_node	*help(t_node *node, t_ways *iter, t_ant *ant)
-{
-	t_node *cur_node;
-
-	cur_node = search_node(node, iter->way->name_edg);
-	cur_node->dfs_mark = 1;
-	ant->s_lvl = cur_node->level;
-	return (cur_node);
-}
 /*
 ** Create list only short way.
 */
@@ -633,6 +603,7 @@ t_ways	*create_short_way(t_node *node, t_ant *ant)
 	while (iter->way != NULL)
 	{
 		cur_node = help(node, iter, ant);
+		ft_printf("insert {%s} dfs [%d]\n",cur_node->name, cur_node->dfs_mark);
 		lst = cur_node->edg;
 		while (lst != NULL)
 		{
@@ -904,7 +875,7 @@ void	solution(t_node *node, t_ant *ant)
 		create_print_list(&pant[i], ant, i);
 	j = 0;
 	ft_printf("ant->cur_steps  %d\n", ant->cur_steps);
-	while (j <  ant->cur_steps)
+	while (j < ant->cur_steps)
 	{
 		i = -1;
 		while (++i < ant->count_ant)
@@ -1260,7 +1231,7 @@ int		finish_cut(t_ant *ant, t_ways *pre, int *now_step, int *pre_step)
 		ft_putendl("Hello4???????????");
 		delete_tail_ways(pre->next);
 		pre->next = NULL;
-		ant->cur_steps = *pre_step;
+		ant->cur_steps = *now_step + 1;
 		ant->count_ways = ant->a - 1;
 		ft_putendl("Hello4???????????");
 		return (1);
@@ -1328,7 +1299,7 @@ void	working(t_node *node, t_ant *ant)
 	{
 		weight_node(node);
 		breadth_first_search(node, ant);
-		//print_node(node);
+		print_node(node);
 		if(short_ways(node, ant))
 		{
 			ft_putendl("CALC_STEP1");
@@ -1336,6 +1307,8 @@ void	working(t_node *node, t_ant *ant)
 			delete_ways(ant);
 			continue ;
 		}
+		print_node(node);
+		ft_putendl("ways!!!!!!!!!!!!!!!!!");
 		print_ways(ant);
 		if(calc_steps(ant))
 		{
@@ -1383,7 +1356,7 @@ void	copy_node(t_node ***node, t_room *rooms)
 	rooms_it = rooms;
 	while (rooms_it != NULL)
 	{
-		print_room_coor(rooms_it);
+		//print_room_coor(rooms_it);
 		**node = add_node(**node, &rooms_it->name_room);
 		rooms_it = rooms_it->next;
 	}
@@ -1425,43 +1398,27 @@ void	copy_node_link(t_node **node, t_ant *ant, t_lem *lem)
 
 void	read_map(void)
 {
-	//char	*line;
 	t_lem	lem;
 	t_node	*node;
 	t_ant	*ant;
+	char	*file;
 
-	//line = NULL;
 	node = NULL;
 	ant = init_ant();
-	/*
-	while(get_next_line(0, &line))
-	{
-		ft_printf("%s\n", line);
-		if (ant->count_ant == 0)
-			ant->count_ant = ft_atoi(line);
-		if (check_name_octothorpe(line))
-			node = add_node(node, ant, &line);
-		else	if (check_link_node(line))
-			create_edges(node, line);
-		ft_strdel(&line);
-	}
-	*/
-	lem = ft_get_lem();
+	file = ft_strnew(0);
+	lem = ft_get_lem(&file);
 	ft_check_graph(&lem);
+	ft_putendl(file);
+	free(file);
 	copy_node_link(&node, ant, &lem);
+	//print_node(node);
 	ft_free_lem(&lem);
-	//exit(0);
 	working(node, ant);
-	ft_putendl("RE");
-	print_ways(ant);
+	//print_ways(ant);
 	weight_node(node);
 	breadth_first_search(node, ant);
-	ft_putendl("short_ways");
 	short_ways(node, ant);
-	ft_putendl("sort_ways");
 	sort_ways(ant);
-	print_ways(ant);
-	ft_putendl("cur_ways");
 	cut_ways(ant);
 	print_ways(ant);
 	solution(node, ant);
