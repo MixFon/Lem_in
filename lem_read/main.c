@@ -448,6 +448,7 @@ void	iter_to_edg_lst(t_node *node, t_ant *ant, t_node *cur_node)
 		if (cur_node->mark_bfs == 0)
 		{
 			insert(ant->que, edg_lst->name_edg);
+			ft_printf("   Insetr:{%s}\n", edg_lst->name_edg);
 			cur_node->mark_bfs = 1;
 			cur_node->level = i + 1;
 		}
@@ -465,14 +466,17 @@ void	breadth_first_search(t_node *node, t_ant *ant)
 	char	*name;
 
 	insert(ant->que, ant->name_start);
+	ft_printf("   Insetr:{%s}\n", ant->name_start);
 	while (!isempty_queue(ant->que))
 	{
 		name = remove_first(ant->que, 1);
+		ft_printf("remove:[%s]\n", name);
 		cur_node = search_node(node, name);
 		if (!ft_strcmp(name, ant->name_end))
 		{
 			ant->lvl = cur_node->level;
 			delete_all_list(&ant->que->first);
+			ft_printf("Find!![%s]\n", name);
 			free(name);
 			return ;
 		}
@@ -565,9 +569,10 @@ int		part(t_node *node, t_nlst *lst, t_ways *iter, t_ant *ant)
 
 	name = lst->name_edg;
 	cur_node = search_node(node, name);
-	//ft_printf("    lst name {%s} dfs [%d]\n",cur_node->name, cur_node->dfs_mark);
+	ft_printf("edges {%s}\n", cur_node->name);
 	if (!ft_strcmp(name, ant->name_start))
 	{
+		ft_putendl("1111");
 		add_new_nlst(&iter->way, name);
 		cur_node->dfs_mark = 1;
 		return (1);
@@ -575,6 +580,7 @@ int		part(t_node *node, t_nlst *lst, t_ways *iter, t_ant *ant)
 	else if (cur_node->level == ant->s_lvl - 1 && cur_node->dfs_mark == 0 &&
 			cur_node->level != 0)
 	{
+		ft_putendl("2222");
 		work_dfs(iter, &lst, cur_node);
 		return (2);
 	}
@@ -597,8 +603,8 @@ t_ways	*create_short_way(t_node *node, t_ant *ant)
 	while (iter->way != NULL)
 	{
 		cur_node = help(node, iter, ant);
-		//ft_printf("insert {%s} dfs [%d]\n",cur_node->name, cur_node->dfs_mark);
 		lst = cur_node->edg;
+		ft_printf("cur_node {%s}\n", cur_node->name);
 		while (lst != NULL)
 		{
 			bl = part(node, lst, iter, ant);
@@ -700,13 +706,13 @@ t_ant	*init_ant(void)
 	if(!(new = (t_ant*)malloc(sizeof(t_ant))))
 		sys_err("Error malloc\n");
 	new->que = init_queue();
-	//new->stack = init_stack();
-	//new->short_way = NULL;
 	new->ways = NULL;
 	new->lvl = 0;
 	new->count_ant = 0;
 	new->pre_steps = 0;
 	new->all_steps = 0;
+	new->num_fn = 0;
+	new->num_sn = 0;
 	new->bl = 0;
 	new->max_count_way = 0;
 	new->s_lvl = 0;
@@ -823,7 +829,7 @@ void	create_print_list(t_nlst *pant, t_ant *ant, int i)
 		iter = iter->next;
 		b++;
 	}
-	j = ant->cur_steps - b + 1;
+	j = ant->cur_steps - b + 5;
 	while (--j > 0)
 		add_new_edges(pant_it, "\0");
 	ant->ways->iter = ant->ways->iter->next;
@@ -870,7 +876,7 @@ void	solution(t_node *node, t_ant *ant)
 		create_print_list(&pant[i], ant, i);
 	j = 0;
 	ft_printf("ant->cur_steps  %d\n", ant->cur_steps);
-	while (j < ant->cur_steps)
+	while (j < ant->cur_steps + 4)
 	{
 		i = -1;
 		while (++i < ant->count_ant)
@@ -935,27 +941,34 @@ int		check_name_short_way(char *name, t_ways *ways)
 ** Удоляет один лист  из списка соседей.
 */
 
-int	delete_name_list(char *name, t_nlst **nlst)
+int		delete_name_list(char *name, t_nlst **nlst, int *num)
 {
 	t_nlst	*iter;
 	t_nlst	*pre;
+	int		i;
 
+	i = 1;
 	pre = *nlst;
 	iter = (*nlst)->next;
+	ft_printf("!iteration |%s|\n", pre->name_edg);
 	if (!ft_strcmp(name, (*nlst)->name_edg))
 	{
 		*nlst = (*nlst)->next;
 		free(pre);	
+		*num = 0;
 		return (0);
 	}
 	while (iter != NULL)
 	{
+		ft_printf("iteration |%s|\n", iter->name_edg);
 		if (!ft_strcmp(name, iter->name_edg))
 		{
 			pre->next = iter->next;	
 			free(iter);
+			*num = i;
 			return (0);
 		}
+		i++;
 		pre = pre->next;
 		iter = iter->next;
 	}
@@ -1011,16 +1024,17 @@ void	remove_edge(t_node *node, t_ant *ant)
 	ft_printf("Delete edges fir {%s}, sec {%s}\n", ant->fir_wei, ant->sec_wei);
 	fir_node = search_node(node, ant->fir_wei);
 	sec_node = search_node(node, ant->sec_wei);
-	if (delete_name_list(fir_node->name, &sec_node->edg))
+	if (delete_name_list(fir_node->name, &sec_node->edg, &ant->num_fn))
 	{
 		ant->bl = 1;
 		ant->pre_steps = 1;
 	}
-	if (delete_name_list(sec_node->name, &fir_node->edg))
+	if (delete_name_list(sec_node->name, &fir_node->edg, &ant->num_sn))
 	{
 		ant->bl = 1;
 		ant->pre_steps = 1;
 	}
+	ft_printf("Number fir {%d}, sec {%d}\n", ant->num_fn, ant->num_sn);
 }
 
 /*
@@ -1101,6 +1115,50 @@ void	print_ways(t_ant *ant)
 	}
 }
 
+void	add_to_num_edges(t_nlst **edg, char *name, int num)
+{
+	t_nlst	*iter;
+	t_nlst	*pre;
+	t_nlst	*temp;
+	int		i;
+
+	i = 0;
+	iter = *edg;
+	pre = NULL;
+	ft_printf("num = {%d}\n", num);
+	ft_putendl("HELLLLLLLLLLLLLLLLLLL");
+	while (iter != NULL)
+	{
+		if (i == num)
+		{
+			temp = creat_new_lst(name);
+			if (pre == NULL)
+			{
+				temp->next = iter;
+				*edg = temp;
+			}
+			else
+			{
+				pre->next = temp;
+				temp->next = iter;
+			}
+			print_edges(*edg);
+			return ;
+		}
+		ft_printf("i == %d\n", i);
+		i++;
+		pre = iter;
+		iter = iter->next;
+	}
+	temp = creat_new_lst(name);
+	if (pre != NULL)
+		pre->next = temp;
+	temp->next = iter;
+	//*edg = temp;
+	print_edges(*edg);
+	ft_putendl("HEOOOOOOOOOOOOOOOOOOO");
+}
+
 /*
 ** Проверяет увеличение количества шагов.
 */
@@ -1122,9 +1180,11 @@ int		cheack_step(t_node *node, t_ant *ant)
 			ft_printf("bl =  [%d]\n", ant->bl);
 			//print_node(node);
 			cur_node = search_node(node, ant->pre_firn);
-			add_new_edges(&cur_node->edg, ant->pre_secn);
+			add_to_num_edges(&cur_node->edg, ant->pre_secn, ant->num_fn);
+			//add_new_edges(&cur_node->edg, ant->pre_secn);
 			cur_node = search_node(node, ant->pre_secn);
-			add_new_edges(&cur_node->edg, ant->pre_firn);
+			add_to_num_edges(&cur_node->edg, ant->pre_firn, ant->num_sn);
+			//add_new_edges(&cur_node->edg, ant->pre_firn);
 			//print_node(node);
 		}
 		return (0);
@@ -1306,6 +1366,7 @@ void	working(t_node *node, t_ant *ant)
 			continue ;
 		}
 		ft_putendl("WORING");
+		print_node(node);
 		print_ways(ant);
 		if(calc_steps(ant))
 		{
