@@ -365,6 +365,7 @@ int		first_short_way(t_node *node, t_ant *ant)
 {
 	if(!(ant->ways = create_short_way(node, ant)))
 	{
+		ft_putendl("HELLLLLLLL");
 		ant->count_ways++;
 		ant->pre_steps = 1;
 		ant->bl = 0;
@@ -841,6 +842,7 @@ void	delete_node(t_node *node)
 		node = node->next;
 	}
 }
+
 void	delete_node_ant(t_node *node, t_ant *ant)
 {
 	delete_node(node);
@@ -1006,6 +1008,7 @@ void	remove_edge(t_node *node, t_ant *ant)
 		return ;
 	ft_strcpy(ant->pre_firn, ant->fir_wei);
 	ft_strcpy(ant->pre_secn, ant->sec_wei);
+	ft_printf("Delete edges fir {%s}, sec {%s}\n", ant->fir_wei, ant->sec_wei);
 	fir_node = search_node(node, ant->fir_wei);
 	sec_node = search_node(node, ant->sec_wei);
 	if (delete_name_list(fir_node->name, &sec_node->edg))
@@ -1106,16 +1109,23 @@ int		cheack_step(t_node *node, t_ant *ant)
 {
 	t_node *cur_node;
 
+	ft_putendl("cheack STEP");
 	if (ant->cur_steps == 0)
 		return (1);
+	ft_printf("cur_step [%d] pre_step [%d]\n", ant->cur_steps, ant->pre_steps);
+	ft_printf("pre_firn [%s] pre_secn [%s]\n", ant->pre_firn, ant->pre_secn);
+	ft_printf("bl =  [%d]\n", ant->bl);
 	if (ant->cur_steps > ant->pre_steps && ant->pre_steps != 0)
 	{	
 		if (ant->bl == 0)
 		{
+			ft_printf("bl =  [%d]\n", ant->bl);
+			//print_node(node);
 			cur_node = search_node(node, ant->pre_firn);
 			add_new_edges(&cur_node->edg, ant->pre_secn);
 			cur_node = search_node(node, ant->pre_secn);
 			add_new_edges(&cur_node->edg, ant->pre_firn);
+			//print_node(node);
 		}
 		return (0);
 	}
@@ -1219,12 +1229,12 @@ int		finish_cut(t_ant *ant, t_ways *pre, int *now_step, int *pre_step)
 	//ft_printf("i = %d, pre_step %d, now_step %d\n", ++i, *pre_step, *now_step);
 	if (*now_step >= *pre_step && *pre_step != 0)
 	{
-		ft_putendl("Hello4???????????");
+		//ft_putendl("Hello4???????????");
 		delete_tail_ways(pre->next);
 		pre->next = NULL;
 		ant->cur_steps = *pre_step + 1;
 		ant->count_ways = ant->a - 1;
-		ft_putendl("Hello4???????????");
+		//ft_putendl("Hello4???????????");
 		return (1);
 	}
 	return (0);
@@ -1295,6 +1305,8 @@ void	working(t_node *node, t_ant *ant)
 			delete_ways(ant);
 			continue ;
 		}
+		ft_putendl("WORING");
+		print_ways(ant);
 		if(calc_steps(ant))
 		{
 			zeroing_bfs(node);
@@ -1396,6 +1408,7 @@ void	read_map(void)
 	//print_ways(ant);
 	weight_node(node);
 	breadth_first_search(node, ant);
+	print_node(node);
 	short_ways(node, ant);
 	sort_ways(ant);
 	cut_ways(ant);

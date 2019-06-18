@@ -10,6 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef LEM_H
+# define LEM_H
+
 #include "libft/ft_printf.h"
 #include "libft/libft.h"
 #include "libft/get_next_line.h"
@@ -106,3 +109,5 @@ void	solution(t_node *node, t_ant *ant);
 void	print_ways(t_ant *ant);
 void	delete_ways(t_ant *ant);
 void	print_ways(t_ant *ant);
+
+#endif
