@@ -735,17 +735,35 @@ int		ft_lstlen(t_nlst *nlst)
 	}
 	return (i);
 }
+void	re_count_steps(t_ant *ant)
+{
+	ft_printf("count_ways %d\n", ant->count_ways);
+	if (ant->ways->len_way == 1 && ant->cur_steps < ant->count_ant)
+	{
+		calc_all_ways(ant);
+		ant->cur_steps = ant->count_ant / ant->count_ways + ant->max_count_way - 1;
+	}
+	if (ant->ways->len_way == 1 && ant->cur_steps > ant->count_ant)
+	{
+		ant->cur_steps = ant->count_ant;
+		delete_tail_ways(ant->ways->next);
+		ant->ways->next = NULL;
+		ant->count_ways = 1;
+	}
+
+}
 
 /*
 ** Admission room of name start.
 */
 
-void	admission_name_start(t_ant *ant)
+void	admission_name_start_recount(t_ant *ant)
 {
 	t_ways	*ways;
 	t_nlst	*nlst;
 
 	ways = ant->ways;
+	re_count_steps(ant);	
 	while (ways != NULL)
 	{
 		nlst = ways->way;
@@ -829,7 +847,7 @@ void	create_print_list(t_nlst *pant, t_ant *ant, int i)
 		iter = iter->next;
 		b++;
 	}
-	j = ant->cur_steps - b + 5;
+	j = ant->cur_steps - b + 1;
 	while (--j > 0)
 		add_new_edges(pant_it, "\0");
 	ant->ways->iter = ant->ways->iter->next;
@@ -871,12 +889,13 @@ void	solution(t_node *node, t_ant *ant)
 	t_nlst			pant[ant->count_ant];
 
 	i = -1;
-	admission_name_start(ant);
+	admission_name_start_recount(ant);
 	while (++i < ant->count_ant)
 		create_print_list(&pant[i], ant, i);
 	j = 0;
 	ft_printf("ant->cur_steps  %d\n", ant->cur_steps);
-	while (j < ant->cur_steps + 4)
+	ft_printf("ant->count_ant  %d\n", ant->count_ant);
+	while (j < ant->cur_steps)
 	{
 		i = -1;
 		while (++i < ant->count_ant)
