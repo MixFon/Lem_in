@@ -145,15 +145,72 @@ void	delete_arr(char **arr)
 	free(arr);
 }
 
+char	*return_name_node(char *str)
+{
+	char *iter;
+
+	iter = str;
+	while (*iter != '\0' && *iter != '-')
+		iter++;
+	return (iter + 1);
+}
+
+/*
+** Create new list for edges and(or) queue.
+*/
+
+t_link	*creat_new_link(char *name)
+{
+	t_link *new;
+	size_t len;
+
+	len = ft_strlen(name);
+	if (!(new = (t_link *)malloc(sizeof(t_link))))
+		sys_err("Error malloc.\n");
+	ft_strncpy(new->name, name, len);
+	new->name[len] = '\0';
+	new->next = NULL;
+	return (new);
+}
+
+/*
+** Add new list name edgess.
+*/
+
+void	add_list_link(t_link **link, char *name)
+{
+	t_link	*first;
+	t_link	*new_esg;
+
+	first = *link;
+	if (!first)
+	{
+		*link= creat_new_link(name);
+		return ;
+	}
+	while (first->next != NULL)
+		first = first->next;
+	new_esg = creat_new_link(name);
+	first->next = new_esg;
+}
+
 void	input_room(t_node *node, t_vis *vis, char **arr)
 {
+	char	*name;
+	t_node	*cur_node;
+
+	name = NULL;	
 	while (*arr != NULL)
 	{
-		
+		name = return_name_node(*arr);
+		cur_node = search_node(node, name);
+		ft_printf("name {%s}, x =[%d] y = [%d]\n",
+				cur_node->name, cur_node->coor_x, cur_node->coor_y);
+		mlx_string_put(vis->mlx_ptr, vis->win_ptr,
+				cur_node->coor_y * 10, cur_node->coor_x * 10, 0x2056B6, name);
+		//sleep(1);
 		arr++;
 	}
-
-
 }
 
 void	visual(t_node *node, t_vis *vis)
@@ -167,7 +224,7 @@ void	visual(t_node *node, t_vis *vis)
 	{
 		ft_putendl(line);
 		arr = ft_strsplit(line, ' ');
-		
+		input_room(node, vis, arr);
 		print_arr(arr);
 		delete_arr(arr);
 		ft_strdel(&line);
@@ -223,13 +280,75 @@ t_vis	*create_vis(void)
 	return (vis);
 }
 
+/*
+** Check link node.
+*/
+
+int		check_link_node(char *line)
+{
+	while (*line != '\0' && *line != 'L')
+	{
+		if (*line == '-')
+			return (1);
+		line++;
+	}
+	return (0);
+}
+
+void	print_link(t_link *link)
+{
+	while (link != NULL)
+	{
+		ft_printf("link [%s]\n", link->name);
+		link = link->next;
+	}
+}
+
+void	delete_link(t_link **link)
+{
+	t_link	*temp;
+
+	temp = *link;
+	while (*link != NULL)
+	{
+		*link = (*link)->next;
+		free(temp);
+		temp = *link;
+	}
+	*link = NULL;
+}
+
+
+t_link	*creat_new_step(char *line)
+{
+	t_step *new;
+	size_t len;
+
+	len = ft_strlen(line);
+	if (!(new = (t_step *)malloc(sizeof(t_step))))
+		sys_err("Error malloc.\n");
+	ft_strncpy(new->name, name, len);
+	new->name[len] = '\0';
+	new->next = NULL;
+	return (new);
+}
+void	add_list_step(t_step **step, char *line)
+{
+
+
+}
+
 int		read_map(t_vis *vis)
 {
 	char	*line;
 	t_node	*node;
+	t_link	*link;
+	t_step	*step;
 
 	line = NULL;
 	node = NULL;
+	link = NULL;
+	step = NULL;
 	while(get_next_line(0, &line))
 	{
 		if (!ft_strcmp("ERROR", line))
@@ -240,14 +359,19 @@ int		read_map(t_vis *vis)
 			ft_putendl(line);
 			node = add_node(node, &line);
 		}
+		else	if (check_link_node(line))
+			add_list_link(&link, line);
 		if (*line == 'L')
 		{
 			ft_strdel(&line);
-			visual(node, vis);
+			add_list_step(&step, line);
+			//visual(node, vis);
 		}
 		ft_printf("{%s}\n", line);
 		ft_strdel(&line);
 	}
+	print_link(link);	
+	delete_link(&link);
 	//ft_printf("{%s}\n", line);
 	ft_strdel(&line);
 	//ft_putendl("Hwllo");

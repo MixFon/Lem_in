@@ -83,6 +83,8 @@ typedef struct		s_ant
 	char			sec_wei[NSIZE];
 	char			pre_firn[NSIZE];
 	char			pre_secn[NSIZE];
+	int				num_fn;
+	int				num_sn;
 	int				cur_steps;
 	int				pre_steps;
 	int				lvl;
@@ -109,5 +111,7 @@ void	solution(t_node *node, t_ant *ant);
 void	print_ways(t_ant *ant);
 void	delete_ways(t_ant *ant);
 void	print_ways(t_ant *ant);
+void	calc_all_ways(t_ant *ant);
+void	delete_tail_ways(t_ways *ways);
 
 #endif

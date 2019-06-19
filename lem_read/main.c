@@ -365,7 +365,7 @@ int		first_short_way(t_node *node, t_ant *ant)
 {
 	if(!(ant->ways = create_short_way(node, ant)))
 	{
-		ft_putendl("HELLLLLLLL");
+		ft_putendl("H11111111");
 		ant->count_ways++;
 		ant->pre_steps = 1;
 		ant->bl = 0;
@@ -735,6 +735,17 @@ int		ft_lstlen(t_nlst *nlst)
 	}
 	return (i);
 }
+
+void	delete_dublicate(t_ant *ant)
+{
+	if (ant->ways->len_way == 1 && ant->ways->next->len_way == 1)
+	{
+		delete_tail_ways(ant->ways->next);
+		ant->ways->next = NULL;
+		ant->count_ways = 1;
+	}
+}
+
 void	re_count_steps(t_ant *ant)
 {
 	ft_printf("count_ways %d\n", ant->count_ways);
@@ -750,7 +761,6 @@ void	re_count_steps(t_ant *ant)
 		ant->ways->next = NULL;
 		ant->count_ways = 1;
 	}
-
 }
 
 /*
@@ -763,6 +773,7 @@ void	admission_name_start_recount(t_ant *ant)
 	t_nlst	*nlst;
 
 	ways = ant->ways;
+	delete_dublicate(ant);
 	re_count_steps(ant);	
 	while (ways != NULL)
 	{
@@ -1144,23 +1155,23 @@ void	add_to_num_edges(t_nlst **edg, char *name, int num)
 	i = 0;
 	iter = *edg;
 	pre = NULL;
-	ft_printf("num = {%d}\n", num);
+	temp = NULL;
 	ft_putendl("HELLLLLLLLLLLLLLLLLLL");
+	ft_printf("num = {%d}\n", num);
+	ft_printf("name {%s}\n", name);
 	while (iter != NULL)
 	{
+		ft_putendl("11");
 		if (i == num)
 		{
+			ft_putendl("22");
+			ft_printf("1i == %d\n", i);
 			temp = creat_new_lst(name);
+			temp->next = iter;
 			if (pre == NULL)
-			{
-				temp->next = iter;
 				*edg = temp;
-			}
 			else
-			{
 				pre->next = temp;
-				temp->next = iter;
-			}
 			print_edges(*edg);
 			return ;
 		}
@@ -1169,12 +1180,23 @@ void	add_to_num_edges(t_nlst **edg, char *name, int num)
 		pre = iter;
 		iter = iter->next;
 	}
-	temp = creat_new_lst(name);
-	if (pre != NULL)
+	ft_putendl("33");
+	if (pre == NULL)
+	{
+		ft_putendl("44");
+		ft_printf("2i == %d\n", i);
+		temp = creat_new_lst(name);
+		*edg = temp;
+		print_edges(*edg);
+		return ;
+	}
+	else
+	{
+		ft_putendl("55");
+		temp = creat_new_lst(name);
 		pre->next = temp;
-	temp->next = iter;
-	//*edg = temp;
-	print_edges(*edg);
+		print_edges(*edg);
+	}	
 	ft_putendl("HEOOOOOOOOOOOOOOOOOOO");
 }
 
@@ -1198,11 +1220,13 @@ int		cheack_step(t_node *node, t_ant *ant)
 		{
 			ft_printf("bl =  [%d]\n", ant->bl);
 			//print_node(node);
+			//
 			cur_node = search_node(node, ant->pre_firn);
-			add_to_num_edges(&cur_node->edg, ant->pre_secn, ant->num_fn);
+			add_to_num_edges(&cur_node->edg, ant->pre_secn, ant->num_sn);
 			//add_new_edges(&cur_node->edg, ant->pre_secn);
+
 			cur_node = search_node(node, ant->pre_secn);
-			add_to_num_edges(&cur_node->edg, ant->pre_firn, ant->num_sn);
+			add_to_num_edges(&cur_node->edg, ant->pre_firn, ant->num_fn);
 			//add_new_edges(&cur_node->edg, ant->pre_firn);
 			//print_node(node);
 		}
@@ -1254,6 +1278,8 @@ void	sort_ways(t_ant *ant)
 	int		i;
 
 	i = ant->count_ways + 1;
+	ft_putendl("H4444");
+	print_ways(ant);
 	while (--i > 0)
 	{
 		ways = ant->ways;
