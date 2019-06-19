@@ -145,21 +145,34 @@ void	delete_arr(char **arr)
 	free(arr);
 }
 
-void	visual(t_node *node)
+void	input_room(t_node *node, t_vis *vis, char **arr)
+{
+	while (*arr != NULL)
+	{
+		
+		arr++;
+	}
+
+
+}
+
+void	visual(t_node *node, t_vis *vis)
 {
 	char	*line;
 	char	**arr;
 
 	line = NULL;
-	ft_putchar('B');
-	while(get_next_line(0, &line) > 0)
+	ft_putendl("B");
+	while(get_next_line(0, &line))
 	{
 		ft_putendl(line);
 		arr = ft_strsplit(line, ' ');
+		
 		print_arr(arr);
 		delete_arr(arr);
 		ft_strdel(&line);
 	}
+	ft_putendl("C");
 	print_node(node);
 	delete_node(node);
 	//exit(0);
@@ -210,31 +223,33 @@ t_vis	*create_vis(void)
 	return (vis);
 }
 
-int		read_map(void)
+int		read_map(t_vis *vis)
 {
 	char	*line;
 	t_node	*node;
 
 	line = NULL;
 	node = NULL;
-	while(get_next_line(0, &line) > 0)
+	while(get_next_line(0, &line))
 	{
 		if (!ft_strcmp("ERROR", line))
 			sys_err("ERROR\n");
 		else	if (check_name_node(line))
 		{
-			ft_putendl("11111");
+			ft_putendl("name node");
 			ft_putendl(line);
 			node = add_node(node, &line);
 		}
 		if (*line == 'L')
 		{
 			ft_strdel(&line);
-			visual(node);
+			visual(node, vis);
 		}
-		ft_printf("{%saa}", line);
+		ft_printf("{%s}\n", line);
 		ft_strdel(&line);
 	}
+	//ft_printf("{%s}\n", line);
+	ft_strdel(&line);
 	//ft_putendl("Hwllo");
 	return (0);
 }
