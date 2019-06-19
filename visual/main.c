@@ -156,7 +156,7 @@ char	*return_name_node(char *str)
 }
 
 /*
-** Create new list for edges and(or) queue.
+** Create new list for links and steps.
 */
 
 t_link	*creat_new_link(char *name)
@@ -166,6 +166,8 @@ t_link	*creat_new_link(char *name)
 
 	len = ft_strlen(name);
 	if (!(new = (t_link *)malloc(sizeof(t_link))))
+		sys_err("Error malloc.\n");
+	if (!(new->name = (char *)malloc(sizeof(char) * len)))
 		sys_err("Error malloc.\n");
 	ft_strncpy(new->name, name, len);
 	new->name[len] = '\0';
@@ -180,7 +182,7 @@ t_link	*creat_new_link(char *name)
 void	add_list_link(t_link **link, char *name)
 {
 	t_link	*first;
-	t_link	*new_esg;
+	t_link	*new_edg;
 
 	first = *link;
 	if (!first)
@@ -190,8 +192,9 @@ void	add_list_link(t_link **link, char *name)
 	}
 	while (first->next != NULL)
 		first = first->next;
-	new_esg = creat_new_link(name);
-	first->next = new_esg;
+	new_edg = creat_new_link(name);
+	first->next = new_edg;
+	//*link = new_edg;
 }
 
 void	input_room(t_node *node, t_vis *vis, char **arr)
@@ -235,6 +238,27 @@ void	visual(t_node *node, t_vis *vis)
 	//exit(0);
 }
 
+char	**crea_color_map(int heith, int width, const char *color)
+{
+	char	**map;
+	int		i;
+	int		j;
+
+	map = (char **)malloc(sizeof(char *) * (heith + 3));
+	map[0] = ft_multi_strdup(4, ft_itoa(width), " ", ft_itoa(heith), " 1 1 "); 
+	map[1] = ft_multi_strdup(2, "b c #", color);
+	i = 1;
+	while (++i < heith + 2)
+	{
+		j = -1;
+		map[i] = ft_strnew(width + 1);
+		while (++j < width)
+			map[i][j] = 'b';
+	}
+	map[i] = NULL;
+	return (map);
+}
+
 /*
 ** Init value struct.
 */
@@ -244,8 +268,15 @@ void	init_val(t_vis *vis)
 	vis->mlx_ptr = NULL;
 	vis->win_ptr = NULL;
 	vis->img_back = NULL;
+	vis->node = NULL;
+	vis->link = NULL;
+	vis->step = NULL;
 	vis->heith = 0;
 	vis->width = 0;
+	vis->size_room = 20;
+	vis->count_ant = 0;
+	vis->map_room = NULL;
+	vis->img_room = NULL;
 }
 
 /*
@@ -270,12 +301,17 @@ int		init_back(t_vis *vis)
 t_vis	*create_vis(void)
 {
 	t_vis	*vis;
+	int		a;
+	int		b;
 
 	if(!(vis = (t_vis*)malloc(sizeof(t_vis))))
 		return (NULL);
 	init_val(vis);
 	vis->mlx_ptr = mlx_init();
 	vis->win_ptr = mlx_new_window(vis->mlx_ptr, WIDTH, HEITH, "Lem-in");
+	vis->map_room = crea_color_map(vis->size_room, vis->size_room, C_ROOM);
+	vis->img_room = mlx_xpm_to_image(vis->mlx_ptr,vis->map_room, &a, &b);
+	delete_arr(vis->map_room);
 	init_back(vis);
 	return (vis);
 }
@@ -312,69 +348,40 @@ void	delete_link(t_link **link)
 	while (*link != NULL)
 	{
 		*link = (*link)->next;
+		free(temp->name);
 		free(temp);
 		temp = *link;
 	}
 	*link = NULL;
 }
 
-
-t_link	*creat_new_step(char *line)
-{
-	t_step *new;
-	size_t len;
-
-	len = ft_strlen(line);
-	if (!(new = (t_step *)malloc(sizeof(t_step))))
-		sys_err("Error malloc.\n");
-	ft_strncpy(new->name, name, len);
-	new->name[len] = '\0';
-	new->next = NULL;
-	return (new);
-}
-void	add_list_step(t_step **step, char *line)
-{
-
-
-}
-
 int		read_map(t_vis *vis)
 {
 	char	*line;
-	t_node	*node;
-	t_link	*link;
-	t_step	*step;
 
 	line = NULL;
-	node = NULL;
-	link = NULL;
-	step = NULL;
 	while(get_next_line(0, &line))
 	{
 		if (!ft_strcmp("ERROR", line))
 			sys_err("ERROR\n");
 		else	if (check_name_node(line))
 		{
-			ft_putendl("name node");
 			ft_putendl(line);
-			node = add_node(node, &line);
+			vis->node = add_node(vis->node, &line);
 		}
 		else	if (check_link_node(line))
-			add_list_link(&link, line);
-		if (*line == 'L')
-		{
-			ft_strdel(&line);
-			add_list_step(&step, line);
-			//visual(node, vis);
-		}
-		ft_printf("{%s}\n", line);
+			add_list_link(&vis->link, line);
+		else	if (*line == 'L')
+			add_list_link(&vis->step, line);
 		ft_strdel(&line);
 	}
-	print_link(link);	
-	delete_link(&link);
-	//ft_printf("{%s}\n", line);
+	print_link(vis->link);	
+	print_link(vis->step);	
+	//delete_link(&vis->link);
+	//delete_link(&vis->step);
 	ft_strdel(&line);
-	//ft_putendl("Hwllo");
+	//delete_node(vis->node);
+	//exit(0);
 	return (0);
 }
 
@@ -389,16 +396,62 @@ int		exit_key(int key)
 	return (0);
 }
 
-int	main(void)
+void	next_step(t_link **step)
+{
+	t_link *temp;
+
+	temp = *step;
+	*step = (*step)->next;
+	free(temp->name);
+	free(temp);
+	
+}
+
+void	print_rooms(t_vis *vis)
+{
+	t_node	*node;
+
+	node = vis->node;
+	while (node != NULL)
+	{
+		mlx_put_image_to_window(vis->mlx_ptr, vis->win_ptr, vis->img_room,
+				node->coor_x * 50, node->coor_y * 80);
+		node = node->next;
+	}
+}
+
+void	print_edges(t_vis *vis)
+{
+	sdf
+}
+
+int		print_steps(t_vis *vis)
+{
+	char **arr;
+
+	if (vis->step == NULL)
+		return (0);
+	ft_putendl("new step");
+	arr = ft_strsplit(vis->step->name, ' ');
+	next_step(&vis->step);
+	print_arr(arr);
+	delete_arr(arr);
+	return (0);
+}
+
+int		main(void)
 {
 	t_vis	*vis;
 	
 	if(!(vis = create_vis()))
 		exit(0);
+	read_map(vis);
 	mlx_put_image_to_window(vis->mlx_ptr, vis->win_ptr, vis->img_back, 0, 0);
+	print_rooms(vis);
+	print_edges(vis);
+	//print_arr(vis->room);
 	mlx_key_hook(vis->win_ptr, exit_key, (void*)0);
-	mlx_loop_hook(vis->mlx_ptr, read_map, vis);
+	mlx_loop_hook(vis->mlx_ptr, print_steps, vis);
 	mlx_loop(vis->mlx_ptr);
-	//read_map();
 	return (0);
 }
