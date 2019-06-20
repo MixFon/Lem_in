@@ -273,7 +273,7 @@ void	init_val(t_vis *vis)
 	vis->step = NULL;
 	vis->heith = 0;
 	vis->width = 0;
-	vis->size_room = 20;
+	vis->size_room = SIZE_ROOM;
 	vis->count_ant = 0;
 	vis->map_room = NULL;
 	vis->img_room = NULL;
@@ -415,14 +415,135 @@ void	print_rooms(t_vis *vis)
 	while (node != NULL)
 	{
 		mlx_put_image_to_window(vis->mlx_ptr, vis->win_ptr, vis->img_room,
-				node->coor_x * 50, node->coor_y * 80);
+				node->coor_x, node->coor_y);
 		node = node->next;
 	}
 }
 
-void	print_edges(t_vis *vis)
+void	swap(int *a, int *b)
 {
-	sdf
+	int temp;
+
+	temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
+void	put_line(t_vis *vis, int x0, int y0, int x1, int y1)
+{
+	int		dx; 
+    int		dy;
+	int		y;
+	int		x;
+	double	error;
+	double	deltaerr;
+	int		diry;
+
+	if (x0 > x1)
+	{
+		swap(&x0, &x1);
+		swap(&y0, &y1);
+	}
+	dx = ABS((x1 - x0));
+	dy = ABS((y1 - y0));
+    error = 0;
+    y = y0;
+	x = x0;
+    deltaerr = dy;
+    diry = y1 - y0;
+    if (diry > 0)
+        diry = 1;
+    if (diry < 0)
+        diry = -1;
+	while (x < x1)
+	{
+		mlx_pixel_put (vis->mlx_ptr, vis->win_ptr, x, y, 0xBF2956);
+		error = error + deltaerr;
+		if (2 * error >= dx)
+		{
+			y = y + diry;
+			error = error - dx;
+		}
+		x++;
+	}
+}
+/*
+   function line(x0, x1, y0, y1)
+     int deltax := abs(x1 - x0)
+     int deltay := abs(y1 - y0)
+     int error := 0
+     int deltaerr := deltay
+     int y := y0
+     int diry := y1 - y0
+     if diry > 0
+         diry = 1
+     if diry < 0
+         diry = -1
+     for x from x0 to x1
+         plot(x,y)
+         error := error + deltaerr
+         if 2 * error >= deltax
+             y := y + diry
+             error := error - deltax
+*/
+
+char	*first_name(t_link *link)
+{
+	char	*name;
+	size_t	len;
+
+	len = ft_strcl(link->name, '-');
+	name = ft_strnew(len);
+	ft_strncpy(name, link->name, len); 
+	return (name);
+}
+
+char	*second_name(t_link *link)
+{
+	char	*name;
+	size_t	len;
+
+	len = ft_strcl(link->name, '-');
+	return (link->name + len + 1);
+}
+
+t_coor	*remove_coor(t_vis *vis, char *temp)
+{
+	t_coor	*coor;
+	t_node	*node;
+
+	if(!(coor = (t_coor *)malloc(sizeof(t_coor))))
+		sys_err("Error malloc\n");
+	coor->x = 0;
+	coor->y = 0;
+	node = search_node(vis->node, temp);
+	coor->x = node->coor_x;
+	coor->y = node->coor_y;
+	return (coor);
+}
+
+void	put_edges(t_vis *vis)
+{
+	char	*temp;
+	t_link	*link;
+	t_coor	*start;
+	t_coor	*end;
+	
+	while (vis->link != NULL)
+	{
+		temp = first_name(vis->link);
+		start = remove_coor(vis, temp);
+		ft_strdel(&temp);
+		temp = second_name(vis->link);	
+		end = remove_coor(vis, temp);
+		put_line(vis, start->x + CENTR, start->y + CENTR,
+				end->x + CENTR, end->y + CENTR);
+		free(start);
+		free(end);
+		link = vis->link;
+		vis->link = vis->link->next;
+		free(link);
+	}
 }
 
 int		print_steps(t_vis *vis)
@@ -447,8 +568,8 @@ int		main(void)
 		exit(0);
 	read_map(vis);
 	mlx_put_image_to_window(vis->mlx_ptr, vis->win_ptr, vis->img_back, 0, 0);
+	put_edges(vis);
 	print_rooms(vis);
-	print_edges(vis);
 	//print_arr(vis->room);
 	mlx_key_hook(vis->win_ptr, exit_key, (void*)0);
 	mlx_loop_hook(vis->mlx_ptr, print_steps, vis);

@@ -9,7 +9,12 @@
 # define WIDTH	1280
 # define HEITH	720
 
+# define ABS(N) ((N<0)?(-N):(N))
+
 # define C_ROOM	"2056B6"
+
+# define SIZE_ROOM	30
+# define CENTR	SIZE_ROOM / 2
 
 # define IMGPATH	"/Users/mixfon/MyFiles/ConsoleFiles/Lem_in2/visual/image/back3.xpm"
 typedef struct		s_link
@@ -25,6 +30,12 @@ typedef struct		s_node
 	int				coor_y;
 	struct s_node	*next;
 }					t_node;
+
+typedef struct		s_coor
+{
+	int				x;
+	int				y;
+}					t_coor;
 
 typedef struct		s_vis
 {
