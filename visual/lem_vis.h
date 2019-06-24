@@ -32,6 +32,12 @@ typedef struct		s_node
 	struct s_node	*next;
 }					t_node;
 
+typedef struct		s_point
+{
+	double			x;
+	double			y;
+}					t_point;
+
 typedef struct		s_coor
 {
 	int				x;

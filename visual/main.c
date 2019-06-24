@@ -421,6 +421,8 @@ void	print_rooms(t_vis *vis)
 	{
 		mlx_put_image_to_window(vis->mlx_ptr, vis->win_ptr, vis->img_room,
 				node->coor_x, node->coor_y);
+	mlx_string_put(vis->mlx_ptr, vis->win_ptr,
+			node->coor_x, node->coor_y, 0x000000, node->name);
 		node = node->next;
 	}
 }
@@ -434,63 +436,48 @@ void	swap(int *a, int *b)
 	*b = temp;
 }
 
-void	put_line(t_vis *vis, int x0, int y0, int x1, int y1)
+void	ft_draw_line(void *mlx_ptr, void *win_ptr, t_point point1, t_point point2)
 {
-	int		dx; 
-    int		dy;
-	int		y;
-	int		x;
-	double	error;
-	double	deltaerr;
-	int		diry;
+	t_point delta;
+	t_point	sign;
+	int		error;
+	int		error2;
 
-	if (x0 > x1)
+	delta.x = ABS((point2.x - point1.x));
+	delta.y = ABS((point2.y - point1.y));
+	sign.x = (point1.x < point2.x) ? 1 : -1;
+	sign.y = (point1.y < point2.y) ? 1 : -1;
+	error = delta.x - delta.y;
+
+	mlx_pixel_put(mlx_ptr, win_ptr, point2.x, point2.y, 0xBF2956);
+	while(point1.x != point2.x || point1.y != point2.y)
 	{
-		swap(&x0, &x1);
-		swap(&y0, &y1);
-	}
-	dx = ABS((x1 - x0));
-	dy = ABS((y1 - y0));
-    error = 0;
-    y = y0;
-	x = x0;
-    deltaerr = dy;
-    diry = y1 - y0;
-    if (diry > 0)
-        diry = 1;
-    if (diry < 0)
-        diry = -1;
-	while (x < x1)
-	{
-		mlx_pixel_put (vis->mlx_ptr, vis->win_ptr, x, y, 0xBF2956);
-		error = error + deltaerr;
-		if (2 * error >= dx)
+		mlx_pixel_put(mlx_ptr, win_ptr, point1.x, point1.y, 0xBF2956);
+		error2 = error * 2;
+		if (error2 > -delta.y)
 		{
-			y = y + diry;
-			error = error - dx;
+			error -= delta.y;
+			point1.x += sign.x;
 		}
-		x++;
+		if (error2 < delta.x)
+		{
+			error += delta.x;
+			point1.y += sign.y;
+		}
 	}
 }
-/*
-   function line(x0, x1, y0, y1)
-     int deltax := abs(x1 - x0)
-     int deltay := abs(y1 - y0)
-     int error := 0
-     int deltaerr := deltay
-     int y := y0
-     int diry := y1 - y0
-     if diry > 0
-         diry = 1
-     if diry < 0
-         diry = -1
-     for x from x0 to x1
-         plot(x,y)
-         error := error + deltaerr
-         if 2 * error >= deltax
-             y := y + diry
-             error := error - deltax
-*/
+
+void	put_line(t_vis *vis, int x0, int y0, int x1, int y1)
+{
+	t_point	point1;
+	t_point	point2;
+
+	point1.x = x0;
+	point1.y = y0;
+	point2.x = x1;
+	point2.y = y1;
+	ft_draw_line(vis->mlx_ptr, vis->win_ptr, point1, point2);
+}
 
 char	*first_name(t_link *link)
 {
@@ -560,8 +547,7 @@ void	print_visit(t_vis *vis, char *str_num, char *name_room)
 	mlx_put_image_to_window(vis->mlx_ptr, vis->win_ptr, vis->img_visit,
 			node->coor_x + 3, node->coor_y + 2);
 	mlx_string_put(vis->mlx_ptr, vis->win_ptr,
-			node->coor_x + 10, node->coor_y + 10, 0x000000, str_num);
-	sleep(1);
+			node->coor_x + 10, node->coor_y + 20, 0x000000, str_num);
 }
 
 void	rectengle_visit(t_vis *vis, char **arr)
@@ -579,7 +565,7 @@ void	rectengle_visit(t_vis *vis, char **arr)
 		ft_printf("str_num = %s\n", str_num);
 		name_room = return_name_node(*arr);
 		print_visit(vis, str_num, name_room);	
-		//ft_strdel(&str_num);
+		ft_strdel(&str_num);
 		arr++;
 	}
 }
@@ -591,6 +577,8 @@ int		print_steps(t_vis *vis)
 	if (vis->step == NULL)
 		return (0);
 	ft_putendl("new step");
+	sleep(1);
+	print_rooms(vis);
 	arr = ft_strsplit(vis->step->name, ' ');
 	next_step(&vis->step);
 	rectengle_visit(vis, arr);
