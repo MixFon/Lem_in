@@ -244,7 +244,8 @@ char	**crea_color_map(int heith, int width, const char *color)
 	int		i;
 	int		j;
 
-	map = (char **)malloc(sizeof(char *) * (heith + 3));
+	if (!(map = (char **)malloc(sizeof(char *) * (heith + 3))))
+		sys_err("Error malloc\n");
 	map[0] = ft_multi_strdup(4, ft_itoa(width), " ", ft_itoa(heith), " 1 1 "); 
 	map[1] = ft_multi_strdup(2, "b c #", color);
 	i = 1;
@@ -310,8 +311,12 @@ t_vis	*create_vis(void)
 	vis->mlx_ptr = mlx_init();
 	vis->win_ptr = mlx_new_window(vis->mlx_ptr, WIDTH, HEITH, "Lem-in");
 	vis->map_room = crea_color_map(vis->size_room, vis->size_room, C_ROOM);
-	vis->img_room = mlx_xpm_to_image(vis->mlx_ptr,vis->map_room, &a, &b);
+	vis->map_visit = crea_color_map(vis->size_room - 5,
+			vis->size_room - 5, C_VISIT);
+	vis->img_room = mlx_xpm_to_image(vis->mlx_ptr, vis->map_room, &a, &b);
+	vis->img_visit = mlx_xpm_to_image(vis->mlx_ptr, vis->map_visit, &a, &b);
 	delete_arr(vis->map_room);
+	delete_arr(vis->map_visit);
 	init_back(vis);
 	return (vis);
 }
@@ -546,6 +551,39 @@ void	put_edges(t_vis *vis)
 	}
 }
 
+void	print_visit(t_vis *vis, char *str_num, char *name_room)
+{
+	t_node *node;
+
+	ft_printf("name_room = {%s}, str_num = {%s}\n", name_room, str_num);
+	node = search_node(vis->node, name_room);
+	mlx_put_image_to_window(vis->mlx_ptr, vis->win_ptr, vis->img_visit,
+			node->coor_x + 3, node->coor_y + 2);
+	mlx_string_put(vis->mlx_ptr, vis->win_ptr,
+			node->coor_x + 10, node->coor_y + 10, 0x000000, str_num);
+	sleep(1);
+}
+
+void	rectengle_visit(t_vis *vis, char **arr)
+{
+	int		num;
+	char	*str_num;
+	char	*name_room;
+
+	num = 0;
+	while (*arr != NULL)
+	{
+		num = ft_atoi(*(arr) + 1);
+		ft_printf("num = %d\n", num);
+		str_num = ft_itoa(num);
+		ft_printf("str_num = %s\n", str_num);
+		name_room = return_name_node(*arr);
+		print_visit(vis, str_num, name_room);	
+		//ft_strdel(&str_num);
+		arr++;
+	}
+}
+
 int		print_steps(t_vis *vis)
 {
 	char **arr;
@@ -555,6 +593,7 @@ int		print_steps(t_vis *vis)
 	ft_putendl("new step");
 	arr = ft_strsplit(vis->step->name, ' ');
 	next_step(&vis->step);
+	rectengle_visit(vis, arr);
 	print_arr(arr);
 	delete_arr(arr);
 	return (0);

@@ -12,6 +12,7 @@
 # define ABS(N) ((N<0)?(-N):(N))
 
 # define C_ROOM	"2056B6"
+# define C_VISIT "BF2956"
 
 # define SIZE_ROOM	30
 # define CENTR	SIZE_ROOM / 2
@@ -43,6 +44,7 @@ typedef struct		s_vis
 	void			*win_ptr;
 	void			*img_back;
 	void			*img_room;
+	void			*img_visit;
 	t_node			*node;
 	t_link			*link;
 	t_link			*step;
@@ -50,6 +52,7 @@ typedef struct		s_vis
 	int				width;
 	int				count_ant;
 	char			**map_room;
+	char			**map_visit;
 	int				size_room;
 }					t_vis;
 
