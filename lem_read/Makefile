@@ -19,10 +19,7 @@ HFILES = -I ./libft
 all: $(NAME)
 
 $(NAME):
-	make -C ./libft
-	gcc $(FLAGS) $(HFILES) -c $(CFILES)
-	gcc $(FLAGS) $(OFILES) -L./libft -lft -o $(NAME)
-
+	gcc -g ./*.c -I ../ -L ../libft -lftprintf 
 clean:
 	make clean -C ./libft
 	/bin/rm -f $(OFILES)

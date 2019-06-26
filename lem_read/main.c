@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:18:25 by widraugr          #+#    #+#             */
-/*   Updated: 2019/06/14 18:29:24 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/06/26 14:48:13 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -904,8 +904,6 @@ void	solution(t_node *node, t_ant *ant)
 	while (++i < ant->count_ant)
 		create_print_list(&pant[i], ant, i);
 	j = 0;
-	ft_printf("ant->cur_steps  %d\n", ant->cur_steps);
-	ft_printf("ant->count_ant  %d\n", ant->count_ant);
 	while (j < ant->cur_steps)
 	{
 		i = -1;
@@ -921,6 +919,8 @@ void	solution(t_node *node, t_ant *ant)
 		ft_putchar('\n');
 		j++;
 	}
+	ft_printf("ant->count_ant  %d\n", ant->count_ant);
+	ft_printf("ant->cur_steps  %d\n", ant->cur_steps);
 	delete_node_ant(node, ant);
 	exit(0);
 }
@@ -1411,8 +1411,8 @@ void	working(t_node *node, t_ant *ant)
 			continue ;
 		}
 		ft_putendl("WORING");
-		print_node(node);
-		print_ways(ant);
+		//print_node(node);
+		//print_ways(ant);
 		if(calc_steps(ant))
 		{
 			zeroing_bfs(node);
