@@ -6,7 +6,7 @@
 /*   By: widraugr <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/05/16 10:18:25 by widraugr          #+#    #+#             */
-/*   Updated: 2019/06/26 14:48:13 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/06/26 15:38:10 by widraugr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -478,7 +478,8 @@ void	breadth_first_search(t_node *node, t_ant *ant)
 			delete_all_list(&ant->que->first);
 			ft_printf("Find!![%s]\n", name);
 			free(name);
-			return ;
+			//return ;
+			continue ;
 		}
 		iter_to_edg_lst(node, ant, cur_node);
 		free(name);
@@ -1332,7 +1333,7 @@ int		finish_cut(t_ant *ant, t_ways *pre, int *now_step, int *pre_step)
 	//static int i = 0;
 	//i = len_ways(ant->ways);
 	//ft_printf("i = %d, pre_step %d, now_step %d\n", ++i, *pre_step, *now_step);
-	if (*now_step >= *pre_step && *pre_step != 0)
+	if (*now_step > *pre_step && *pre_step != 0)
 	{
 		//ft_putendl("Hello4???????????");
 		delete_tail_ways(pre->next);
