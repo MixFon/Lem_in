@@ -739,6 +739,8 @@ int		ft_lstlen(t_nlst *nlst)
 
 void	delete_dublicate(t_ant *ant)
 {
+	if (ant->ways->next == NULL)
+		return ;
 	if (ant->ways->len_way == 1 && ant->ways->next->len_way == 1)
 	{
 		delete_tail_ways(ant->ways->next);
@@ -888,6 +890,7 @@ void	delete_node_ant(t_node *node, t_ant *ant)
 	free(ant);
 	ant = NULL;
 }
+
 /*
 ** Print solution.
 */
@@ -1140,7 +1143,7 @@ void	print_ways(t_ant *ant)
 	ft_putendl(__func__);
 	while (ways)
 	{
-		ft_printf("\nPath %d:\n", ++i);
+		ft_printf("\nPath %d:\nCout staps in way %d\n", ++i, ways->len_way);
 		print_edges(ways->way);
 		ways = ways->next;
 	}
@@ -1387,6 +1390,7 @@ void	special_case(t_node *node, t_ant *ant)
 	t_ways *ways;
 
 	ways = ant->ways;
+	ft_putendl("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 	if (ways->len_way > ant->count_ant)
 	{
 		delete_tail_ways(ant->ways->next);
@@ -1412,15 +1416,15 @@ void	working(t_node *node, t_ant *ant)
 			continue ;
 		}
 		ft_putendl("WORING");
+		print_ways(ant);
 		//print_node(node);
-		//print_ways(ant);
 		if(calc_steps(ant))
 		{
 			zeroing_bfs(node);
 			delete_ways(ant);
 			continue;
 		}
-		special_case(node, ant);
+		//special_case(node, ant);
 		define_fir_sec_wei(node, ant);
 		remove_edge(node, ant);
 		zeroing_bfs(node);
