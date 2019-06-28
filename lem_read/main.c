@@ -1512,6 +1512,7 @@ void	read_map(void)
 	ft_check_graph(&lem);
 	ft_putendl(file);
 	free(file);
+	//exit(0);
 	copy_node_link(&node, ant, &lem);
 	//print_node(node);
 	ft_free_lem(&lem);
