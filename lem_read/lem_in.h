@@ -65,13 +65,14 @@ typedef struct			s_stack
 	struct s_stack		*next;
 }						t_stack;
 
+void					ft_read_farm(t_lem *lem);
+t_lem					ft_get_lem(void);
+void					ft_get_counts_ants(t_lem *lem);
+void					ft_read_start_or_end(char **str, t_lem *lem);
 int						get_next_line(const int fd, char **line);
 void					ft_error(void);
 void					ft_free_lem(t_lem *lem);
-void					ft_read_farm(t_lem *lem, char **file);
 void					ft_init_lem(t_lem *lem);
-t_lem					ft_get_lem(char **file);
-void					ft_get_counts_ants(t_lem *lem, char **file);
 int						ft_is_comment(char *str);
 void					ft_push_room(t_room **head, char *name, int x, int y);
 void					ft_read_room(char **str, t_lem *lem);
@@ -81,7 +82,6 @@ void					ft_read_start(char **str, t_lem *lem);
 void					ft_read_end(char **str, t_lem *lem);
 void					ft_start_or_end_not_comment(char **str, t_lem *lem,
 							char **line);
-void					ft_read_start_or_end(char **str, t_lem *lem, char **file);
 void					ft_check_names_of_rooms(t_lem *lem,
 							char *name, char **mas);
 void					ft_check_coords_of_rooms(t_lem *lem,

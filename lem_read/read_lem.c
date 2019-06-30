@@ -21,18 +21,18 @@ int		ft_is_comment(char *str)
 	return (0);
 }
 
-void	ft_get_counts_ants(t_lem *lem, char **file)
+void	ft_get_counts_ants(t_lem *lem)
 {
 	char	*line;
 
 	line = NULL;
 	if (get_next_line(0, &line) > 0)
 	{
-		ft_to_file(file, line);
+		ft_putendl(line);
 		if (ft_is_comment(line))
 		{
 			free(line);
-			ft_get_counts_ants(lem, file);
+			ft_get_counts_ants(lem);
 			return ;
 		}
 		else if (ft_strisdigit(line))
@@ -46,21 +46,20 @@ void	ft_get_counts_ants(t_lem *lem, char **file)
 		}
 		free(line);
 	}
-	free(*file);
 	ft_error();
 }
 
-void	ft_read_farm(t_lem *lem, char **file)
+void	ft_read_farm(t_lem *lem)
 {
 	char	*line;
 
 	line = NULL;
 	while (get_next_line(0, &line) > 0)
 	{
-		ft_to_file(file, line);
+		ft_putendl(line);
 		if (ft_strequ(line, "##start") || ft_strequ(line, "##end"))
 		{
-			ft_read_start_or_end(&line, lem, file);
+			ft_read_start_or_end(&line, lem);
 		}
 		else if (line[0] == '#')
 		{
@@ -93,12 +92,12 @@ void	ft_init_lem(t_lem *lem)
 	lem->links = NULL;
 }
 
-t_lem	ft_get_lem(char **file)
+t_lem	ft_get_lem()
 {
 	t_lem	lem;
 
 	ft_init_lem(&lem);
-	ft_get_counts_ants(&lem, file);
-	ft_read_farm(&lem, file);
+	ft_get_counts_ants(&lem);
+	ft_read_farm(&lem);
 	return (lem);
 }

@@ -43,39 +43,3 @@ void	ft_check_graph(t_lem *lem)
 	ft_check_linking(lem, &vertex);
 	ft_free_vertex(&vertex);
 }
-
-char 	*ft_strjoin_with_n(char const *s1, char const *s2)
-{
-	char	*str;
-	size_t	i;
-	size_t	j;
-	int		len;
-
-	if (s1 == NULL || s2 == NULL)
-		return (NULL);
-	len = ft_strlen(s1) + ft_strlen(s2) + 1;
-	if (!(str = (char *)malloc(sizeof(char) * (len + 1))))
-		return (NULL);
-	i = 0;
-	while (s1[i] != '\0')
-	{
-		str[i] = s1[i];
-		i++;
-	}
-	j = 0;
-	while (s2[j] != '\0')
-		str[i++] = s2[j++];
-	str[i] = '\n';
-	str[i + 1] = '\0';
-	return (str);
-}
-
-void	ft_to_file(char **file, char *line)
-{
-	char *tmp;
-
-	tmp = ft_strdup(*file);
-	free(*file);
-	*file = ft_strjoin_with_n(tmp, line);
-	free(tmp);
-}

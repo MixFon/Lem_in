@@ -925,7 +925,7 @@ void	solution(t_node *node, t_ant *ant)
 	}
 	ft_printf("ant->count_ant  %d\n", ant->count_ant);
 	ft_printf("ant->cur_steps  %d\n", ant->cur_steps);
-	//delete_node_ant(node, ant);
+	delete_node_ant(node, ant);
 	exit(0);
 }
 /*
@@ -1087,7 +1087,7 @@ void	define_fir_sec_wei(t_node *node, t_ant *ant)
 		}
 		way = way->next;
 	}
-	unwanted_edg(node, ant);
+	//unwanted_edg(node, ant);
 }
 
 /*
@@ -1349,7 +1349,7 @@ void	sort_ways(t_ant *ant)
 {
 	t_ways	*ways;
 	t_ways	*pre;
-	t_ways	*temp;
+	//t_ways	*temp;
 	int		bl;
 
 	print_ways(ant);
@@ -1569,6 +1569,7 @@ void	copy_node_link(t_node **node, t_ant *ant, t_lem *lem)
 	ant->count_ant = lem->count_ants;
 }
 
+/*
 void	sum_max_ways(t_node *node, t_ant *ant)
 {
 	t_node	*cur_node;
@@ -1582,26 +1583,26 @@ void	sum_max_ways(t_node *node, t_ant *ant)
 	(one < two) ? (ant->sum_ways = one) : (ant->sum_ways = two);
 	ft_printf("Sum ways %d\n", ant->sum_ways);
 }
-
+*/
 void	read_map(void)
 {
 	t_lem	lem;
 	t_node	*node;
 	t_ant	*ant;
-	char	*file;
+	//char	*file;
 
 	node = NULL;
 	ant = init_ant();
-	file = ft_strnew(0);
-	lem = ft_get_lem(&file);
+	//file = ft_strnew(0);
+	lem = ft_get_lem();
 	ft_check_graph(&lem);
-	ft_putendl(file);
-	free(file);
+	//ft_putendl(file);
+	//free(file);
 	//exit(0);
 	copy_node_link(&node, ant, &lem);
 	//print_node(node);
 	ft_free_lem(&lem);
-	sum_max_ways(node, ant);
+	//sum_max_ways(node, ant);
 	working(node, ant);
 	//print_ways(ant);
 	weight_node(node);
