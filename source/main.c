@@ -1569,21 +1569,6 @@ void	copy_node_link(t_node **node, t_ant *ant, t_lem *lem)
 	ant->count_ant = lem->count_ants;
 }
 
-/*
-void	sum_max_ways(t_node *node, t_ant *ant)
-{
-	t_node	*cur_node;
-	int		one;
-	int		two;
-
-	cur_node = search_node(node, ant->name_start);
-	one = ft_lstlen(cur_node->edg);
-	cur_node = search_node(node, ant->name_end);
-	two = ft_lstlen(cur_node->edg);
-	(one < two) ? (ant->sum_ways = one) : (ant->sum_ways = two);
-	ft_printf("Sum ways %d\n", ant->sum_ways);
-}
-*/
 void	read_map(void)
 {
 	t_lem	lem;
@@ -1602,7 +1587,6 @@ void	read_map(void)
 	copy_node_link(&node, ant, &lem);
 	//print_node(node);
 	ft_free_lem(&lem);
-	//sum_max_ways(node, ant);
 	working(node, ant);
 	//print_ways(ant);
 	weight_node(node);
