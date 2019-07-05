@@ -13,8 +13,10 @@
 
 # define C_ROOM	"2056B6"
 # define C_VISIT "BF2956"
+# define C_START "00008B"
+# define C_END	"00008B"
 
-# define SIZE_ROOM	30
+# define SIZE_ROOM	40
 # define CENTR	SIZE_ROOM / 2
 
 # define IMGPATH	"/Users/mixfon/MyFiles/ConsoleFiles/Lem_in2/visual/image/back3.xpm"
@@ -50,15 +52,21 @@ typedef struct		s_vis
 	void			*win_ptr;
 	void			*img_back;
 	void			*img_room;
+	void			*img_start;
+	void			*img_end;
 	void			*img_visit;
 	t_node			*node;
 	t_link			*link;
 	t_link			*step;
 	int				heith;
 	int				width;
+	char			nstart[NSIZE];
+	char			nend[NSIZE];
 	int				count_ant;
 	char			**map_room;
 	char			**map_visit;
+	char			**map_start;
+	char			**map_end;
 	int				size_room;
 }					t_vis;
 

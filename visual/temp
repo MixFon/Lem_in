@@ -1,0 +1,248 @@
+1 600 400
+0 600 150
+2 600 200
+3 600 250
+4 600 300
+5 600 350
+6 600 500
+7 600 450
+link [0-2]
+link [2-3]
+link [2-6]
+link [6-7]
+link [3-4]
+link [4-5]
+link [5-1]
+link [L1-2 ]
+link [L1-3 L2-2 ]
+link [L1-4 L2-3 L3-2 ]
+link [L1-5 L2-4 L3-3 L4-2 ]
+link [L1-1 L2-5 L3-4 L4-3 L5-2 ]
+link [L2-1 L3-5 L4-4 L5-3 L6-2 ]
+link [L3-1 L4-5 L5-4 L6-3 L7-2 ]
+link [L4-1 L5-5 L6-4 L7-3 L8-2 ]
+link [L5-1 L6-5 L7-4 L8-3 L9-2 ]
+link [L6-1 L7-5 L8-4 L9-3 L10-2 ]
+link [L7-1 L8-5 L9-4 L10-3 ]
+link [L8-1 L9-5 L10-4 péö]
+link [L9-1 L10-5 ]
+link [L10-1 ]
+new step
+num = 1
+str_num = 1
+name_room = {2}, str_num = {1}
+{L1-2}
+new step
+num = 1
+str_num = 1
+name_room = {3}, str_num = {1}
+num = 2
+str_num = 2
+name_room = {2}, str_num = {2}
+{L1-3}
+{L2-2}
+new step
+num = 1
+str_num = 1
+name_room = {4}, str_num = {1}
+num = 2
+str_num = 2
+name_room = {3}, str_num = {2}
+num = 3
+str_num = 3
+name_room = {2}, str_num = {3}
+{L1-4}
+{L2-3}
+{L3-2}
+new step
+num = 1
+str_num = 1
+name_room = {5}, str_num = {1}
+num = 2
+str_num = 2
+name_room = {4}, str_num = {2}
+num = 3
+str_num = 3
+name_room = {3}, str_num = {3}
+num = 4
+str_num = 4
+name_room = {2}, str_num = {4}
+{L1-5}
+{L2-4}
+{L3-3}
+{L4-2}
+new step
+num = 1
+str_num = 1
+name_room = {1}, str_num = {1}
+num = 2
+str_num = 2
+name_room = {5}, str_num = {2}
+num = 3
+str_num = 3
+name_room = {4}, str_num = {3}
+num = 4
+str_num = 4
+name_room = {3}, str_num = {4}
+num = 5
+str_num = 5
+name_room = {2}, str_num = {5}
+{L1-1}
+{L2-5}
+{L3-4}
+{L4-3}
+{L5-2}
+new step
+num = 2
+str_num = 2
+name_room = {1}, str_num = {2}
+num = 3
+str_num = 3
+name_room = {5}, str_num = {3}
+num = 4
+str_num = 4
+name_room = {4}, str_num = {4}
+num = 5
+str_num = 5
+name_room = {3}, str_num = {5}
+num = 6
+str_num = 6
+name_room = {2}, str_num = {6}
+{L2-1}
+{L3-5}
+{L4-4}
+{L5-3}
+{L6-2}
+new step
+num = 3
+str_num = 3
+name_room = {1}, str_num = {3}
+num = 4
+str_num = 4
+name_room = {5}, str_num = {4}
+num = 5
+str_num = 5
+name_room = {4}, str_num = {5}
+num = 6
+str_num = 6
+name_room = {3}, str_num = {6}
+num = 7
+str_num = 7
+name_room = {2}, str_num = {7}
+{L3-1}
+{L4-5}
+{L5-4}
+{L6-3}
+{L7-2}
+new step
+num = 4
+str_num = 4
+name_room = {1}, str_num = {4}
+num = 5
+str_num = 5
+name_room = {5}, str_num = {5}
+num = 6
+str_num = 6
+name_room = {4}, str_num = {6}
+num = 7
+str_num = 7
+name_room = {3}, str_num = {7}
+num = 8
+str_num = 8
+name_room = {2}, str_num = {8}
+{L4-1}
+{L5-5}
+{L6-4}
+{L7-3}
+{L8-2}
+new step
+num = 5
+str_num = 5
+name_room = {1}, str_num = {5}
+num = 6
+str_num = 6
+name_room = {5}, str_num = {6}
+num = 7
+str_num = 7
+name_room = {4}, str_num = {7}
+num = 8
+str_num = 8
+name_room = {3}, str_num = {8}
+num = 9
+str_num = 9
+name_room = {2}, str_num = {9}
+{L5-1}
+{L6-5}
+{L7-4}
+{L8-3}
+{L9-2}
+new step
+num = 6
+str_num = 6
+name_room = {1}, str_num = {6}
+num = 7
+str_num = 7
+name_room = {5}, str_num = {7}
+num = 8
+str_num = 8
+name_room = {4}, str_num = {8}
+num = 9
+str_num = 9
+name_room = {3}, str_num = {9}
+num = 10
+str_num = 10
+name_room = {2}, str_num = {10}
+{L6-1}
+{L7-5}
+{L8-4}
+{L9-3}
+{L10-2}
+new step
+num = 7
+str_num = 7
+name_room = {1}, str_num = {7}
+num = 8
+str_num = 8
+name_room = {5}, str_num = {8}
+num = 9
+str_num = 9
+name_room = {4}, str_num = {9}
+num = 10
+str_num = 10
+name_room = {3}, str_num = {10}
+{L7-1}
+{L8-5}
+{L9-4}
+{L10-3}
+new step
+num = 8
+str_num = 8
+name_room = {1}, str_num = {8}
+num = 9
+str_num = 9
+name_room = {5}, str_num = {9}
+num = 10
+str_num = 10
+name_room = {4}, str_num = {10}
+num = 0
+str_num = 0
+name_room = {€}, str_num = {0}
+net room!!!!
+{L8-1}
+{L9-5}
+{L10-4}
+{péö}
+new step
+num = 9
+str_num = 9
+name_room = {1}, str_num = {9}
+num = 10
+str_num = 10
+name_room = {5}, str_num = {10}
+{L9-1}
+{L10-5}
+new step
+num = 10
+str_num = 10
+name_room = {1}, str_num = {10}
+{L10-1}

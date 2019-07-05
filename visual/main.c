@@ -178,8 +178,7 @@ t_link	*creat_new_link(char *name)
 	len = ft_strlen(name);
 	if (!(new = (t_link *)malloc(sizeof(t_link))))
 		sys_err("Error malloc.\n");
-	if (!(new->name = (char *)malloc(sizeof(char) * len)))
-		sys_err("Error malloc.\n");
+	new->name = ft_strnew(len);
 	ft_strncpy(new->name, name, len);
 	new->name[len] = '\0';
 	new->next = NULL;
@@ -222,7 +221,6 @@ void	input_room(t_node *node, t_vis *vis, char **arr)
 				cur_node->name, cur_node->coor_x, cur_node->coor_y);
 		mlx_string_put(vis->mlx_ptr, vis->win_ptr,
 				cur_node->coor_y * 10, cur_node->coor_x * 10, 0x2056B6, name);
-		//sleep(1);
 		arr++;
 	}
 }
@@ -289,6 +287,8 @@ void	init_val(t_vis *vis)
 	vis->count_ant = 0;
 	vis->map_room = NULL;
 	vis->img_room = NULL;
+	vis->img_start = NULL;
+	vis->img_end = NULL;
 }
 
 /*
@@ -322,12 +322,18 @@ t_vis	*create_vis(void)
 	vis->mlx_ptr = mlx_init();
 	vis->win_ptr = mlx_new_window(vis->mlx_ptr, WIDTH, HEITH, "Lem-in");
 	vis->map_room = crea_color_map(vis->size_room, vis->size_room, C_ROOM);
+	vis->map_start = crea_color_map(vis->size_room, vis->size_room, C_START);
+	vis->map_end = crea_color_map(vis->size_room, vis->size_room, C_END);
 	vis->map_visit = crea_color_map(vis->size_room - 5,
 			vis->size_room - 5, C_VISIT);
 	vis->img_room = mlx_xpm_to_image(vis->mlx_ptr, vis->map_room, &a, &b);
+	vis->img_start = mlx_xpm_to_image(vis->mlx_ptr, vis->map_start, &a, &b);
+	vis->img_end = mlx_xpm_to_image(vis->mlx_ptr, vis->map_end, &a, &b);
 	vis->img_visit = mlx_xpm_to_image(vis->mlx_ptr, vis->map_visit, &a, &b);
 	delete_arr(vis->map_room);
 	delete_arr(vis->map_visit);
+	delete_arr(vis->map_start);
+	delete_arr(vis->map_end);
 	init_back(vis);
 	return (vis);
 }
@@ -371,6 +377,26 @@ void	delete_link(t_link **link)
 	*link = NULL;
 }
 
+int		check_octotopr(t_vis *vis, char **line)
+{
+	if (ft_strcmp("##start", *line) == 0)
+	{
+		ft_strdel(line);
+		get_next_line(0, line);
+		ft_strncpy(vis->nstart, *line, ft_strcl(*line, ' '));
+		ft_printf("start {%s}\n", vis->nstart);
+	}
+	else	if (ft_strcmp("##end", *line) == 0)
+	{
+		ft_strdel(line);
+		get_next_line(0, line);
+		ft_strncpy(vis->nend, *line, ft_strcl(*line, ' '));
+		ft_printf("end {%s}\n", vis->nend);
+	}
+		return (1);
+	return (0);
+}
+
 int		read_map(t_vis *vis)
 {
 	char	*line;
@@ -378,6 +404,7 @@ int		read_map(t_vis *vis)
 	line = NULL;
 	while(get_next_line(0, &line))
 	{
+		check_octotopr(vis, &line);
 		if (!ft_strcmp("ERROR", line))
 			sys_err("ERROR\n");
 		else	if (check_name_node(line))
@@ -408,7 +435,7 @@ int		read_map(t_vis *vis)
 int		exit_key(int key)
 {
 	if (key == 65307)
-		exit(0);
+		sys_err("Normal exit.\n");
 	return (0);
 }
 
@@ -431,6 +458,12 @@ void	print_rooms(t_vis *vis)
 	while (node != NULL)
 	{
 		mlx_put_image_to_window(vis->mlx_ptr, vis->win_ptr, vis->img_room,
+				node->coor_x, node->coor_y);
+		if (ft_strcmp(node->name, vis->nstart) == 0)
+		mlx_put_image_to_window(vis->mlx_ptr, vis->win_ptr, vis->img_start,
+				node->coor_x, node->coor_y);
+		else	if (ft_strcmp(node->name, vis->nend) == 0)
+		mlx_put_image_to_window(vis->mlx_ptr, vis->win_ptr, vis->img_end,
 				node->coor_x, node->coor_y);
 	mlx_string_put(vis->mlx_ptr, vis->win_ptr,
 			node->coor_x, node->coor_y, 0x000000, node->name);
@@ -554,7 +587,11 @@ void	print_visit(t_vis *vis, char *str_num, char *name_room)
 	t_node *node;
 
 	ft_printf("name_room = {%s}, str_num = {%s}\n", name_room, str_num);
-	node = search_node(vis->node, name_room);
+	if (!(node = search_node(vis->node, name_room)))
+	{
+		ft_putendl("!!!not room!!!!");
+		return ;
+	}
 	mlx_put_image_to_window(vis->mlx_ptr, vis->win_ptr, vis->img_visit,
 			node->coor_x + 3, node->coor_y + 2);
 	mlx_string_put(vis->mlx_ptr, vis->win_ptr,
