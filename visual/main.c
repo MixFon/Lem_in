@@ -225,28 +225,6 @@ void	input_room(t_node *node, t_vis *vis, char **arr)
 	}
 }
 
-void	visual(t_node *node, t_vis *vis)
-{
-	char	*line;
-	char	**arr;
-
-	line = NULL;
-	ft_putendl("B");
-	while(get_next_line(0, &line))
-	{
-		ft_putendl(line);
-		arr = ft_strsplit(line, ' ');
-		input_room(node, vis, arr);
-		print_arr(arr);
-		delete_arr(arr);
-		ft_strdel(&line);
-	}
-	ft_putendl("C");
-	print_node(node);
-	delete_node(node);
-	//exit(0);
-}
-
 char	**crea_color_map(int heith, int width, const char *color)
 {
 	char	**map;
@@ -286,7 +264,9 @@ void	init_val(t_vis *vis)
 	vis->size_room = SIZE_ROOM;
 	vis->count_ant = 0;
 	vis->map_room = NULL;
+	vis->map_score = NULL;
 	vis->img_room = NULL;
+	vis->img_score = NULL;
 	vis->img_start = NULL;
 	vis->img_end = NULL;
 }
@@ -299,10 +279,10 @@ int		init_back(t_vis *vis)
 {
 	if(!(vis->img_back = mlx_xpm_file_to_image(vis->mlx_ptr,
 			IMGPATH, &vis->heith, &vis->width)))
-	{
-		write(2, "Error image background.\n", 24);
-		return (0);
-	}
+		sys_err("Error image background.\n");
+	if(!(vis->img_error = mlx_xpm_file_to_image(vis->mlx_ptr,
+			IMGERR, &vis->heith, &vis->width)))
+		sys_err("Error image ERROR.\n");
 	return (1);
 }
 
@@ -324,11 +304,12 @@ t_vis	*create_vis(void)
 	vis->map_room = crea_color_map(vis->size_room, vis->size_room, C_ROOM);
 	vis->map_start = crea_color_map(vis->size_room, vis->size_room, C_START);
 	vis->map_end = crea_color_map(vis->size_room, vis->size_room, C_END);
-	vis->map_visit = crea_color_map(vis->size_room - 5,
-			vis->size_room - 5, C_VISIT);
+	vis->map_score = crea_color_map(60, 200, C_SCORE);
+	vis->map_visit = crea_color_map(vis->size_room - 5,vis->size_room - 5, C_VISIT);
 	vis->img_room = mlx_xpm_to_image(vis->mlx_ptr, vis->map_room, &a, &b);
 	vis->img_start = mlx_xpm_to_image(vis->mlx_ptr, vis->map_start, &a, &b);
 	vis->img_end = mlx_xpm_to_image(vis->mlx_ptr, vis->map_end, &a, &b);
+	vis->img_score = mlx_xpm_to_image(vis->mlx_ptr, vis->map_score, &a, &b);
 	vis->img_visit = mlx_xpm_to_image(vis->mlx_ptr, vis->map_visit, &a, &b);
 	delete_arr(vis->map_room);
 	delete_arr(vis->map_visit);
@@ -397,6 +378,13 @@ int		check_octotopr(t_vis *vis, char **line)
 	return (0);
 }
 
+void	print_error(t_vis *vis)
+{
+	mlx_put_image_to_window(vis->mlx_ptr, vis->win_ptr, vis->img_error, 0, 0);
+	sleep(3);
+	sys_err("Error file\n");
+}
+
 int		read_map(t_vis *vis)
 {
 	char	*line;
@@ -404,9 +392,11 @@ int		read_map(t_vis *vis)
 	line = NULL;
 	while(get_next_line(0, &line))
 	{
+		if (!vis->count_ant)
+			vis->count_ant = ft_atoi(line);
 		check_octotopr(vis, &line);
 		if (!ft_strcmp("ERROR", line))
-			sys_err("ERROR\n");
+			print_error(vis);
 		else	if (check_name_node(line))
 		{
 			ft_putendl(line);
@@ -492,7 +482,6 @@ void	ft_draw_line(void *mlx_ptr, void *win_ptr, t_point point1, t_point point2)
 	sign.x = (point1.x < point2.x) ? 1 : -1;
 	sign.y = (point1.y < point2.y) ? 1 : -1;
 	error = delta.x - delta.y;
-
 	mlx_pixel_put(mlx_ptr, win_ptr, point2.x, point2.y, 0xBF2956);
 	while(point1.x != point2.x || point1.y != point2.y)
 	{
@@ -618,6 +607,30 @@ void	rectengle_visit(t_vis *vis, char **arr)
 	}
 }
 
+/*
+** Print rectangle in down whith scores.
+*/
+
+void	print_score(t_vis *vis)
+{
+	static int	steps = 0;
+	char		*str;
+
+	str = ft_itoa(steps);
+	steps++;
+	mlx_put_image_to_window(vis->mlx_ptr, vis->win_ptr, vis->img_score, 1040, 660);
+	mlx_string_put(vis->mlx_ptr, vis->win_ptr, 1100, 710, 0xBF2956,
+		"Steps:");
+	mlx_string_put(vis->mlx_ptr, vis->win_ptr, 1180, 710, 0xBF2956,
+		str);
+	str = ft_itoa(vis->count_ant);
+	mlx_string_put(vis->mlx_ptr, vis->win_ptr, 1100, 685, 0xBF2956,
+		"Count ants:");
+	mlx_string_put(vis->mlx_ptr, vis->win_ptr, 1180, 685, 0xBF2956,
+		str);
+	free(str);
+}
+
 int		print_steps(t_vis *vis)
 {
 	char **arr;
@@ -625,6 +638,7 @@ int		print_steps(t_vis *vis)
 	if (vis->step == NULL)
 		return (0);
 	ft_putendl("new step");
+	print_score(vis);
 	sleep(1);
 	print_rooms(vis);
 	arr = ft_strsplit(vis->step->name, ' ');
@@ -644,6 +658,7 @@ int		main(void)
 	read_map(vis);
 	mlx_put_image_to_window(vis->mlx_ptr, vis->win_ptr, vis->img_back, 0, 0);
 	put_edges(vis);
+	print_score(vis);
 	print_rooms(vis);
 	//print_arr(vis->room);
 	mlx_key_hook(vis->win_ptr, exit_key, (void*)0);

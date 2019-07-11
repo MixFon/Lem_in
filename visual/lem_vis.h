@@ -13,13 +13,16 @@
 
 # define C_ROOM	"2056B6"
 # define C_VISIT "BF2956"
+# define C_SCORE "540f0c"
 # define C_START "00008B"
 # define C_END	"00008B"
 
 # define SIZE_ROOM	40
 # define CENTR	SIZE_ROOM / 2
 
-# define IMGPATH	"/Users/mixfon/MyFiles/ConsoleFiles/Lem_in2/visual/image/back3.xpm"
+# define IMGPATH "/Users/mixfon/MyFiles/ConsoleFiles/Lem_in2/visual/image/back3.xpm"
+# define IMGERR	"/Users/mixfon/MyFiles/ConsoleFiles/Lem_in2/visual/image/error.xpm"
+
 typedef struct		s_link
 {
 	char			*name;
@@ -52,9 +55,11 @@ typedef struct		s_vis
 	void			*win_ptr;
 	void			*img_back;
 	void			*img_room;
+	void			*img_score;
 	void			*img_start;
 	void			*img_end;
 	void			*img_visit;
+	void			*img_error;
 	t_node			*node;
 	t_link			*link;
 	t_link			*step;
@@ -64,10 +69,13 @@ typedef struct		s_vis
 	char			nend[NSIZE];
 	int				count_ant;
 	char			**map_room;
+	char			**map_score;
 	char			**map_visit;
 	char			**map_start;
 	char			**map_end;
 	int				size_room;
 }					t_vis;
+
+void	print_score(t_vis *vis);
 
 #endif
