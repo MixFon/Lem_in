@@ -28,7 +28,7 @@ void	ft_push_link(t_link **head, char *room1, char *room2)
 	}
 }
 
-int			ft_check_room_exist(t_lem lem, char *name)
+int		ft_check_room_exist(t_lem lem, char *name)
 {
 	while (lem.rooms)
 	{
@@ -48,7 +48,7 @@ void	ft_check_links(t_lem *lem, char **mas, char *name1, char *name2)
 		ft_error();
 	}
 	if (!(ft_check_room_exist(*lem, name1) &&
-		  ft_check_room_exist(*lem, name2)))
+		ft_check_room_exist(*lem, name2)))
 	{
 		ft_free_lem(lem);
 		ft_free_mas_strings(mas);

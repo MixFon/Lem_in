@@ -1,6 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   working.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/08/01 14:08:57 by eskeleto          #+#    #+#             */
+/*   Updated: 2019/08/01 14:09:00 by eskeleto         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "../../include/lem.h"
-
+#include "lem.h"
 
 /*
 ** Insert bfs to zero.
@@ -64,7 +74,7 @@ int		cheack_step(t_node *node, t_ant *ant)
 	if (ant->cur_steps == 0)
 		return (1);
 	if (ant->cur_steps > ant->pre_steps && ant->pre_steps != 0)
-	{	
+	{
 		if (ant->bl == 0)
 		{
 			cur_node = search_node(node, ant->pre_firn);
@@ -81,7 +91,7 @@ int		cheack_step(t_node *node, t_ant *ant)
 
 void	working(t_node *node, t_ant *ant)
 {
-	while(cheack_step(node, ant))
+	while (cheack_step(node, ant))
 	{
 		weight_node(node);
 		breadth_first_search(node, ant);
@@ -91,14 +101,13 @@ void	working(t_node *node, t_ant *ant)
 			delete_ways(ant);
 			continue ;
 		}
-		if(calc_steps(ant))
+		if (calc_steps(ant))
 		{
 			zeroing_bfs(node);
 			delete_ways(ant);
 			continue;
 		}
 		define_fir_sec_wei(node, ant);
-		//print_node(node);
 		remove_edge(node, ant);
 		zeroing_bfs(node);
 		delete_ways(ant);

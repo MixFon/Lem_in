@@ -1,5 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   remove_edge.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/08/01 13:59:49 by eskeleto          #+#    #+#             */
+/*   Updated: 2019/08/02 13:57:32 by widraugr         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "../../include/lem.h"
+#include "lem.h"
 
 void	add_to_num_edges(t_nlst **edg, char *name, int num)
 {
@@ -8,10 +19,8 @@ void	add_to_num_edges(t_nlst **edg, char *name, int num)
 	t_nlst	*temp;
 	int		i;
 
-	i = 0;
 	iter = *edg;
-	pre = NULL;
-	temp = NULL;
+	init_val(&i, &pre, &temp);
 	while (iter != NULL)
 	{
 		if (i == num)
@@ -22,27 +31,15 @@ void	add_to_num_edges(t_nlst **edg, char *name, int num)
 				*edg = temp;
 			else
 				pre->next = temp;
-			//print_edges(*edg);
 			return ;
 		}
 		i++;
 		pre = iter;
 		iter = iter->next;
 	}
-	if (pre == NULL)
-	{
-		temp = creat_new_lst(name);
-		*edg = temp;
-		//print_edges(*edg);
-		return ;
-	}
-	else
-	{
-		temp = creat_new_lst(name);
-		pre->next = temp;
-		//print_edges(*edg);
-	}	
+	add_to_num_edges_help(pre, &edg, &temp, name);
 }
+
 /*
 ** Определение первого и второго по весу узлов.
 ** Во второе сравнение не заходит. Возможно проверка не нужна.
@@ -52,25 +49,25 @@ void	define_fir_sec_wei(t_node *node, t_ant *ant)
 {
 	t_nlst	*way;
 	t_node	*cur_node;
-	int		fir;
-	int		sec;
+	t_point	p;
 
-	fir = 0;
-	sec = 0;
+	p.fir = 0;
+	p.sec = 0;
 	way = ant->ways->way;
 	while (way != NULL)
 	{
 		cur_node = search_node(node, way->name_edg);
-		if (cur_node->weight > fir && ft_strcmp(way->name_edg, ant->name_end))
+		if (cur_node->weight > p.fir && ft_strcmp(way->name_edg, ant->name_end))
 		{
-			sec = fir;
-			fir = cur_node->weight;
+			p.sec = p.fir;
+			p.fir = cur_node->weight;
 			ft_strcpy(ant->sec_wei, ant->fir_wei);
 			ft_strcpy(ant->fir_wei, cur_node->name);
 		}
-		else if (cur_node->weight > sec && ft_strcmp(way->name_edg, ant->name_end))
+		else if (cur_node->weight > p.sec &&
+			ft_strcmp(way->name_edg, ant->name_end))
 		{
-			sec = cur_node->weight;
+			p.sec = cur_node->weight;
 			ft_strcpy(ant->sec_wei, cur_node->name);
 		}
 		way = way->next;
@@ -100,7 +97,7 @@ int		calc_steps(t_ant *ant)
 
 /*
 ** Remove an edge from the list..
-** Удоляет один лист  из списка соседей.
+** Удоляет один лист из списка соседей.
 */
 
 int		delete_name_list(char *name, t_nlst **nlst, int *num)
@@ -115,18 +112,14 @@ int		delete_name_list(char *name, t_nlst **nlst, int *num)
 	if (!ft_strcmp(name, (*nlst)->name_edg))
 	{
 		*nlst = (*nlst)->next;
-		free(pre);	
-		*num = 0;
-		return (0);
+		return (delete_name_list_help(&pre, &num, 0));
 	}
 	while (iter != NULL)
 	{
 		if (!ft_strcmp(name, iter->name_edg))
 		{
-			pre->next = iter->next;	
-			free(iter);
-			*num = i;
-			return (0);
+			pre->next = iter->next;
+			return (delete_name_list_help(&iter, &num, i));
 		}
 		i++;
 		pre = pre->next;

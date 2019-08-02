@@ -1,5 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   create_short_way.c                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/08/01 13:48:59 by eskeleto          #+#    #+#             */
+/*   Updated: 2019/08/01 13:49:02 by eskeleto         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "../../include/lem.h"
+#include "lem.h"
 
 void	node_is_visited(t_nlst *lst, t_ways *iter, t_node *cur_node)
 {
@@ -18,7 +29,6 @@ int		part(t_node *node, t_nlst *lst, t_ways *iter, t_ant *ant)
 
 	name = lst->name_edg;
 	cur_node = search_node(node, name);
-	//ft_printf("edges {%s}\n", cur_node->name);
 	if (!ft_strcmp(name, ant->name_start))
 	{
 		add_new_nlst(&iter->way, name);
@@ -53,9 +63,9 @@ t_ways	*create_new_way(void)
 {
 	t_ways *way;
 
-	if(!(way = (t_ways *)malloc(sizeof(t_ways))))
+	if (!(way = (t_ways *)malloc(sizeof(t_ways))))
 		sys_err("Error malloc\n");
-	way->way = NULL;;
+	way->way = NULL;
 	way->len_way = 1;
 	way->next = NULL;
 	way->prev = NULL;

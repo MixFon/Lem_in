@@ -15,10 +15,7 @@
 
 # include <stdlib.h>
 # include <unistd.h>
-//# include "../libft/libft.h"
-# include "../libft/ft_printf.h"
-
-//# define BUFF_SIZE 32
+# include "ft_printf.h"
 
 typedef struct			s_room
 {
@@ -105,8 +102,8 @@ void					ft_free_mas_and_lem(t_lem *lem, char ***mas);
 void					ft_to_file(char **file, char *line);
 void					ft_check_linking(t_lem *lem, t_vertex **vertex);
 void					ft_check_graph(t_lem *lem);
-char 					*ft_strjoin_with_n(char const *s1, char const *s2);
-//for_testing
+char					*ft_strjoin_with_n(char const *s1, char const *s2);
+
 void					ft_print_lem(t_lem lem);
 void					ft_print_vertex(t_vertex *vertex);
 void					ft_print_stack(t_stack *stack);

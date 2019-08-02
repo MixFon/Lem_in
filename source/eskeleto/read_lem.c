@@ -92,7 +92,7 @@ void	ft_init_lem(t_lem *lem)
 	lem->links = NULL;
 }
 
-t_lem	ft_get_lem()
+t_lem	ft_get_lem(void)
 {
 	t_lem	lem;
 

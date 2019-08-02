@@ -1,5 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   insert_queue.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/08/01 13:52:46 by eskeleto          #+#    #+#             */
+/*   Updated: 2019/08/01 13:54:04 by eskeleto         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "../../include/lem.h"
+#include "lem.h"
 
 int		ft_lstlen(t_nlst *nlst)
 {
@@ -58,10 +69,10 @@ void	create_edges(t_node *node, char *line)
 
 void	insert_front(t_queue *queue, char *name)
 {
-	t_nlst  *new;
-	t_nlst  *iter;
+	t_nlst	*newl;
+	t_nlst	*iter;
 
-	new = NULL;
+	newl = NULL;
 	iter = queue->first;
 	if (queue->first == NULL && queue->first == NULL)
 	{
@@ -70,9 +81,9 @@ void	insert_front(t_queue *queue, char *name)
 	}
 	else
 	{
-		new = creat_new_lst(name);
-		new->next = iter;
-		queue->first = new;
+		newl = creat_new_lst(name);
+		newl->next = iter;
+		queue->first = newl;
 	}
 }
 
@@ -84,7 +95,7 @@ void	insert_queue(t_queue *que, t_ant *ant)
 {
 	t_ways	*ways;
 	t_nlst	*nlst;
-	
+
 	ways = ant->ways;
 	while (ways->next)
 		ways = ways->next;

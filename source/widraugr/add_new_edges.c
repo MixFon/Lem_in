@@ -1,5 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   add_new_edges.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/08/01 13:42:10 by eskeleto          #+#    #+#             */
+/*   Updated: 2019/08/01 13:42:24 by eskeleto         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "../../include/lem.h"
+#include "lem.h"
 
 void	delete_dublicate(t_ant *ant)
 {
@@ -48,7 +59,8 @@ void	re_count_steps(t_ant *ant)
 	if (ant->ways->len_way == 1 && ant->cur_steps < ant->count_ant)
 	{
 		calc_all_ways(ant);
-		ant->cur_steps = ant->count_ant / ant->count_ways + ant->max_count_way - 1;
+		ant->cur_steps = ant->count_ant / ant->count_ways
+				+ ant->max_count_way - 1;
 	}
 	if (ant->ways->len_way == 1 && ant->cur_steps > ant->count_ant)
 	{
@@ -84,7 +96,7 @@ void	add_new_edges(t_nlst **nlst, char *name)
 	first = *nlst;
 	if (!first)
 	{
-		*nlst= creat_new_lst(name);
+		*nlst = creat_new_lst(name);
 		return ;
 	}
 	while (first->next != NULL)

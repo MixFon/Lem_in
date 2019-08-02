@@ -5,13 +5,13 @@
 ##start
 #com
 ##com
-king 1 2
+king 100 200
 ##end
 #com
 ##com
-queen 2 1
-prince 4 5
-fdp 44 1
+queen 200 100
+prince 400 500
+fdp 400 100
 king-queen
 queen-prince
 prince-fdp

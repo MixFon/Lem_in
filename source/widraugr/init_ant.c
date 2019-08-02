@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init_ant.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/08/01 13:50:45 by eskeleto          #+#    #+#             */
+/*   Updated: 2019/08/01 13:50:48 by eskeleto         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../../include/lem.h"
 
@@ -64,7 +75,7 @@ void	copy_name(char *name, char *line)
 
 /*
 ** Add new node in to list.
-** Ceack liks. Line???
+** Cheack leaks. Line?
 */
 
 t_node	*add_node(t_node *node, char **line)
@@ -91,7 +102,7 @@ t_ant	*init_ant(void)
 {
 	t_ant	*new;
 
-	if(!(new = (t_ant*)malloc(sizeof(t_ant))))
+	if (!(new = (t_ant*)malloc(sizeof(t_ant))))
 		sys_err("Error malloc\n");
 	new->que = init_queue();
 	new->ways = NULL;

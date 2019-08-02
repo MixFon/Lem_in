@@ -1,5 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   sort_ways.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/08/01 14:07:37 by eskeleto          #+#    #+#             */
+/*   Updated: 2019/08/01 14:07:39 by eskeleto         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "../../include/lem.h"
+#include "lem.h"
 
 void	swap_nlst_ptr(t_nlst **one, t_nlst **two)
 {
@@ -22,7 +33,7 @@ void	swap_len_way(int *one, int *two)
 t_node	*search_cur_node(t_node *node, t_ant *ant, t_nlst **lst, t_ways *iter)
 {
 	t_node	*cur_node;
-	
+
 	cur_node = search_node(node, iter->way->name_edg);
 	cur_node->dfs_mark = 1;
 	ant->s_lvl = cur_node->level;
@@ -71,7 +82,6 @@ void	sort_ways(t_ant *ant)
 	t_ways	*pre;
 	int		bl;
 
-	//print_ways(ant);
 	bl = 1;
 	while (bl)
 	{

@@ -6,11 +6,11 @@
 /*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/07 14:44:30 by eskeleto          #+#    #+#             */
-/*   Updated: 2019/06/13 19:03:34 by widraugr         ###   ########.fr       */
+/*   Updated: 2019/08/01 13:36:50 by eskeleto         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//#include "libft.h"
+#include "lem_in.h"
 
 int		ft_check_int(char const *str)
 {

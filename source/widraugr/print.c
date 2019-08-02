@@ -1,5 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   print.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/08/01 13:58:36 by eskeleto          #+#    #+#             */
+/*   Updated: 2019/08/01 13:58:38 by eskeleto         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "../../include/lem.h"
+#include "lem.h"
 
 /*
 ** Print edges.
@@ -15,7 +26,7 @@ void	print_edges(t_nlst *edg)
 }
 
 /*
-** Print list. 
+** Print list.
 ** For test.
 */
 
@@ -34,7 +45,7 @@ void	print_ways(t_ant *ant)
 {
 	t_ways	*ways;
 	int		i;
-	
+
 	i = 0;
 	ways = ant->ways;
 	while (ways)

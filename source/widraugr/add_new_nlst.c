@@ -1,4 +1,16 @@
-#include "../../include/lem.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   add_new_nlst.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/08/01 13:43:35 by eskeleto          #+#    #+#             */
+/*   Updated: 2019/08/01 13:43:37 by eskeleto         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "lem.h"
 
 void	calc_all_ways(t_ant *ant)
 {
@@ -18,14 +30,14 @@ void	calc_all_ways(t_ant *ant)
 void	delete_tail_ways(t_ways *ways)
 {
 	t_ways	*pre;
-	
+
 	pre = ways;
 	while (ways != NULL)
 	{
 		pre = ways;
 		ways = ways->next;
 		delete_all_list(&pre->way);
-		free(pre);	
+		free(pre);
 	}
 }
 
@@ -50,7 +62,7 @@ void	work_dfs(t_ways *iter, t_nlst **lst, t_node *cur_node)
 	add_new_nlst(&iter->way, (*lst)->name_edg);
 	iter->len_way++;
 	cur_node->dfs_mark = 1;
-}	
+}
 
 void	add_new_nlst(t_nlst **way, char *name)
 {

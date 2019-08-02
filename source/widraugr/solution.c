@@ -1,12 +1,23 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   solution.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/08/01 14:06:17 by eskeleto          #+#    #+#             */
+/*   Updated: 2019/08/02 13:57:29 by widraugr         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "../../include/lem.h"
+#include "lem.h"
 
 void	delete_node(t_node *node)
 {
 	t_node *cur_node;
 
 	cur_node = node;
-	while(node != NULL)
+	while (node != NULL)
 	{
 		cur_node = node;
 		delete_all_list(&(cur_node->edg));
@@ -62,7 +73,7 @@ void	admission_name_start_recount(t_ant *ant)
 
 	ways = ant->ways;
 	delete_dublicate(ant);
-	re_count_steps(ant);	
+	re_count_steps(ant);
 	while (ways != NULL)
 	{
 		nlst = ways->way;
@@ -90,9 +101,9 @@ void	solution(t_node *node, t_ant *ant)
 	admission_name_start_recount(ant);
 	while (++i < ant->count_ant)
 		create_print_list(&pant[i], ant, i);
-	j = 0;
+	j = -1;
 	ft_putstr("\n");
-	while (j < ant->cur_steps)
+	while (++j < ant->cur_steps)
 	{
 		i = -1;
 		while (++i < ant->count_ant)
@@ -100,15 +111,11 @@ void	solution(t_node *node, t_ant *ant)
 			temp = &pant[i];
 			del = pant[i].next;
 			pant[i] = *pant[i].next;
-			if (temp->name_edg[0] != '\0')
-				ft_printf("L%d-%s ", i + 1, temp->name_edg);
-			free(del);
+			solution_print(temp->name_edg[0], i + 1, temp->name_edg, &del);
 		}
 		ft_putchar('\n');
-		j++;
 	}
 	ft_printf("ant->count_ant  %d\n", ant->count_ant);
 	ft_printf("ant->cur_steps  %d\n", ant->cur_steps);
-	delete_node_ant(node, ant);
-	exit(0);
+	finish(node, ant);
 }

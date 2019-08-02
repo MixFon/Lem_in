@@ -1,6 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   short_ways.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/08/01 14:04:16 by eskeleto          #+#    #+#             */
+/*   Updated: 2019/08/01 14:04:19 by eskeleto         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "../../include/lem.h"
-
+#include "lem.h"
 
 int		isempty_queue(t_queue *que)
 {
@@ -27,7 +37,7 @@ t_nlst	*creat_new_lst(char *name)
 
 /*
 ** Cheack of a short path.
-** Проверяет есть ли еще один котороткий путь. 
+** Проверяет есть ли еще один котороткий путь.
 */
 
 int		cheack_short_path(t_node *node, t_ant *ant)
@@ -51,20 +61,19 @@ int		cheack_short_path(t_node *node, t_ant *ant)
 
 int		first_short_way(t_node *node, t_ant *ant)
 {
-	if(!(ant->ways = create_short_way(node, ant)))
+	if (!(ant->ways = create_short_way(node, ant)))
 	{
-		//ft_putendl("H11111111");
 		ant->count_ways++;
 		ant->pre_steps = 1;
 		ant->bl = 0;
-		return (1) ;
+		return (1);
 	}
 	return (0);
 }
 
 /*
 ** Add new list of way.
-** Пока есть короткие пути, создаем новый лист с именами пути. 
+** Пока есть короткие пути, создаем новый лист с именами пути.
 ** После создания коротких путей добавляем в конец имя конца пути.
 ** Особеность реализации.
 */
@@ -82,8 +91,8 @@ int		short_ways(t_node *node, t_ant *ant)
 			ant->count_ways++;
 			continue ;
 		}
-		if(!(iter = create_way(node, ant)))
-			return (0) ;
+		if (!(iter = create_way(node, ant)))
+			return (0);
 		ant->count_ways++;
 		iter->next = ant->ways->next;
 		ant->ways->next = iter;

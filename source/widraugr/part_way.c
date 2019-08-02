@@ -1,5 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   part_way.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/08/01 13:56:41 by eskeleto          #+#    #+#             */
+/*   Updated: 2019/08/01 13:56:44 by eskeleto         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "../../include/lem.h"
+#include "lem.h"
 
 void	cheack_remove(t_ant *ant, t_queue *que, int i)
 {
@@ -16,18 +27,18 @@ void	cheack_remove(t_ant *ant, t_queue *que, int i)
 
 /*
 ** Check name in short list.
-** Поиск имени в коротком пути, есть оно есть удаляем.
+** Searching for a name in a short way, is it is delete it.
 */
 
 int		check_name_short_way(char *name, t_ways *ways)
 {
-	t_ways	*iter;	
+	t_ways	*iter;
 	t_nlst	*nlst;
 
 	iter = ways;
 	while (iter != NULL)
 	{
-		nlst = iter->way;			
+		nlst = iter->way;
 		while (nlst != NULL)
 		{
 			if (!ft_strcmp(name, nlst->name_edg))
@@ -37,7 +48,7 @@ int		check_name_short_way(char *name, t_ways *ways)
 		iter = iter->next;
 	}
 	return (0);
-}	
+}
 
 int		cheack_main_way(t_node *temp_node, t_nlst *way, int level)
 {

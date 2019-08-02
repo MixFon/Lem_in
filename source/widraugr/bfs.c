@@ -1,8 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   bfs.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: eskeleto <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/08/01 13:46:10 by eskeleto          #+#    #+#             */
+/*   Updated: 2019/08/01 13:46:13 by eskeleto         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "../../include/lem.h"
+#include "lem.h"
 
 /*
-** Удаляет весь лист.
+** Delete all list.
 */
 
 void	delete_all_list(t_nlst **lst)
@@ -55,10 +66,10 @@ char	*remove_first(t_queue *que, int count_ways)
 
 void	insert(t_queue *queue, char *name)
 {
-	t_nlst  *new;
-	t_nlst  *iter;
+	t_nlst	*newl;
+	t_nlst	*iter;
 
-	new = NULL;
+	newl = NULL;
 	iter = queue->end;
 	if (queue->first == NULL && queue->first == NULL)
 	{
@@ -67,9 +78,9 @@ void	insert(t_queue *queue, char *name)
 	}
 	else
 	{
-		new = creat_new_lst(name);
-		iter->next = new;
-		queue->end = new;
+		newl = creat_new_lst(name);
+		iter->next = newl;
+		queue->end = newl;
 	}
 }
 
@@ -94,7 +105,6 @@ void	iter_to_edg_lst(t_node *node, t_ant *ant, t_node *cur_node)
 		if (cur_node->mark_bfs == 0)
 		{
 			insert(ant->que, edg_lst->name_edg);
-			//ft_printf("   Insetr:{%s}\n", edg_lst->name_edg);
 			cur_node->mark_bfs = 1;
 			cur_node->level = i + 1;
 		}
@@ -112,19 +122,15 @@ void	breadth_first_search(t_node *node, t_ant *ant)
 	char	*name;
 
 	insert(ant->que, ant->name_start);
-	//ft_printf("   Insetr:{%s}\n", ant->name_start);
 	while (!isempty_queue(ant->que))
 	{
 		name = remove_first(ant->que, 1);
-		//ft_printf("remove:[%s]\n", name);
 		cur_node = search_node(node, name);
 		if (!ft_strcmp(name, ant->name_end))
 		{
 			ant->lvl = cur_node->level;
 			delete_all_list(&ant->que->first);
-			//ft_printf("Find!![%s]\n", name);
 			free(name);
-			//return ;
 			continue ;
 		}
 		iter_to_edg_lst(node, ant, cur_node);
